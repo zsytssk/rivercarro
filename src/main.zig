@@ -157,7 +157,7 @@ const Output = struct {
                     0;
 
                 // Don't add gaps if there is only one view
-                if (ev.view_count == 1) {
+                if (ev.view_count == 1 or output.main_location == .monocle) {
                     default_outer_padding = 0;
                     default_view_padding = 0;
                 } else {
