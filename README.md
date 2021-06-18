@@ -7,6 +7,16 @@ Compared to `rivertile`, `rivercarro` add:
 -   monocle layout
 -   smart gaps
 
+Features I may add, or not, still not decided on what I want,
+[contribution](#Contributing) welcome:
+
+-   smart borders - using river-control-unstable-v1 protocol to send "border-width" and
+    0 to remove borders, could be buggy but it's the better solution for now, waiting for
+    river-control v2
+-   "true" gaps _( see [stacktile](https://sr.ht/~leon_plickat/stacktile/) )_
+-   per tags layout
+-   command to turn on/off smart gaps/borders
+
 ## Building
 
 Same requirements as [river](https://github.com/ifreund/river#building),
