@@ -40,6 +40,7 @@ const usage =
     \\                  layout. (Default 1)
     \\  -main-factor    Set the initial ratio of main area to total layout
     \\                  area. (Default: 0.6)
+    \\  -no-smart-gaps  Disable smart gaps
     \\
 ;
 
@@ -57,6 +58,7 @@ var default_outer_padding: u32 = 6;
 var default_main_location: Location = .left;
 var default_main_count: u32 = 1;
 var default_main_factor: f64 = 0.6;
+var smart_gaps: bool = true;
 
 /// We don't free resources on exit, only when output globals are removed.
 const gpa = std.heap.c_allocator;
@@ -157,9 +159,14 @@ const Output = struct {
                     0;
 
                 // Don't add gaps if there is only one view
-                if (ev.view_count == 1 or output.main_location == .monocle) {
-                    default_outer_padding = 0;
-                    default_view_padding = 0;
+                if (smart_gaps) {
+                    if (ev.view_count == 1 or output.main_location == .monocle) {
+                        default_outer_padding = 0;
+                        default_view_padding = 0;
+                    } else {
+                        default_outer_padding = output.outer_padding;
+                        default_view_padding = output.view_padding;
+                    }
                 } else {
                     default_outer_padding = output.outer_padding;
                     default_view_padding = output.view_padding;
@@ -302,6 +309,7 @@ pub fn main() !void {
         .{ .name = "-main-location", .kind = .arg },
         .{ .name = "-main-count", .kind = .arg },
         .{ .name = "-main-factor", .kind = .arg },
+        .{ .name = "-no-smart-gaps", .kind = .boolean },
     }).parse(argv[1..]);
 
     if (args.boolFlag("-h") or args.boolFlag("--help")) {
@@ -327,6 +335,9 @@ pub fn main() !void {
     if (args.argFlag("-main-factor")) |raw| {
         default_main_factor = std.fmt.parseFloat(f64, mem.span(raw)) catch
             fatal("invalid value '{s}' provided to -main-factor", .{raw});
+    }
+    if (args.boolFlag("-no-smart-gaps")) {
+        smart_gaps = false;
     }
 
     const display = wl.Display.connect(null) catch {
