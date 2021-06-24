@@ -60,6 +60,8 @@ var default_main_count: u32 = 1;
 var default_main_factor: f64 = 0.6;
 var smart_gaps: bool = true;
 
+var only_one_view: bool = false;
+
 /// We don't free resources on exit, only when output globals are removed.
 const gpa = std.heap.c_allocator;
 
@@ -158,15 +160,12 @@ const Output = struct {
                 else
                     0;
 
+                only_one_view = if (ev.view_count == 1 or output.main_location == .monocle) true else false;
+
                 // Don't add gaps if there is only one view
-                if (smart_gaps) {
-                    if (ev.view_count == 1 or output.main_location == .monocle) {
-                        default_outer_padding = 0;
-                        default_view_padding = 0;
-                    } else {
-                        default_outer_padding = output.outer_padding;
-                        default_view_padding = output.view_padding;
-                    }
+                if (only_one_view and smart_gaps) {
+                    default_outer_padding = 0;
+                    default_view_padding = 0;
                 } else {
                     default_outer_padding = output.outer_padding;
                     default_view_padding = output.view_padding;
