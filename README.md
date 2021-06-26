@@ -1,6 +1,7 @@
-# rivercarro
+# Rivercarro
 
-A slightly modified version of `rivertile` layout generator for [river](https://github.com/ifreund/river)
+A slightly modified version of `rivertile` layout generator for
+[river][]
 
 Compared to `rivertile`, `rivercarro` add:
 
@@ -8,35 +9,40 @@ Compared to `rivertile`, `rivercarro` add:
 -   smart gaps
 
 Features I may add, or not, still not decided on what I want,
-[contribution](#Contributing) welcome:
+[contribution][] welcome:
 
--   smart borders - using river-control-unstable-v1 protocol to send "border-width" and
-    0 to remove borders, could be buggy but it's the better solution for now, waiting for
-    river-control v2
--   "true" gaps _( see [stacktile](https://sr.ht/~leon_plickat/stacktile/) )_
+-   smart borders - using river-control-unstable-v1 protocol to send
+    "border-width" and 0 to remove borders, could be buggy but it's the
+    better solution for now, waiting for river-control v2
+-   "true" gaps _( see [stacktile][] )_
 -   per tags layout
 -   command to turn on/off smart gaps/borders
 
+[river]: https://github.com/ifreund/river
+[contribution]: #Contributing
+[stacktile]: https://sr.ht/~leon_plickat/stacktile/
+
 ## Building
 
-Same requirements as [river](https://github.com/ifreund/river#building),
-use [zig 0.8.0](https://ziglang.org/download/) too
+Same requirements as [river][], use [zig 0.8.0][] too
 
 Init submodules:
 
     git submodule update --init
 
-Build, e.g.
+Build, `e.g.`
 
     zig build --prefix ~/.local
+
+[river]: https://github.com/ifreund/river#building
+[zig 0.8.0]: https://ziglang.org/download/
 
 ## Usage
 
 Works exactly as `rivertile`, you can just replace `rivertile` name by
 `rivercarro` in your config
 
-e.g.
-In your river init (usually `$XDG_CONFIG_HOME/river/init`)
+`e.g.` In your river init (usually `$XDG_CONFIG_HOME/river/init`)
 
 ```bash
 
@@ -65,8 +71,9 @@ exec rivercarro
 
 ## Contributing
 
-Send patches or question using [git send-email](https://git-send-email.io) to my [public inbox](https://lists.sr.ht/~novakane/public-inbox)  
-`~novakane/public-inbox@lists.sr.ht` with project prefix set to `rivercarro`:
+Send patches or question using [git send-email][] to my [public inbox][]
+[~novakane/public-inbox@lists.sr.ht][] with project prefix set to
+`rivercarro`:
 
 ```
 git config sendemail.to "~novakane/public-inbox@lists.sr.ht"
@@ -75,13 +82,21 @@ git config format.subjectPrefix "PATCH rivercarro"
 
 Run `zig fmt` and wrap line at 100 columns unless it makes sense
 
+[git send-email]: https://git-send-email.io
+[public inbox]: https://lists.sr.ht/~novakane/public-inbox
+[~novakane/public-inbox@lists.sr.ht]: mailto:~novakane/public-inbox@lists.sr.ht
+
 ## Credits
 
-Almost all credits go to [Isaac Freund](https://github.com/ifreund) and
-[Leon Henrik Plickat](https://sr.ht/~leon_plickat/)
+Almost all credits go to [Isaac Freund][] and [Leon Henrik Plickat][]
 
-Thanks to them!
+**Thanks to them!**
+
+[Isaac Freund]: https://github.com/ifreund
+[Leon Henrik Plickat]: https://sr.ht/~leon_plickat/
 
 ## License
 
-[GNU General Public License v3.0](LICENSE)
+[GNU General Public License v3.0][]
+
+[GNU General Public License v3.0]: LICENSE
