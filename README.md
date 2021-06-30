@@ -1,22 +1,21 @@
 # Rivercarro
 
-A slightly modified version of `rivertile` layout generator for
-[river][]
+A slightly modified version of _rivertile_ layout generator for
+**[river][]**
 
-Compared to `rivertile`, `rivercarro` add:
+Compared to _rivertile_, _rivercarro_ add:
 
 -   monocle layout
 -   smart gaps
 
-Features I may add, or not, still not decided on what I want,
+Features I may add, or not, still debating with myself,
 [contribution][] welcome:
 
--   smart borders - using river-control-unstable-v1 protocol to send
-    "border-width" and 0 to remove borders, could be buggy but it's the
-    better solution for now, waiting for river-control v2
+-   smart borders - using `river-control-unstable-v1` protocol to send
+    `border-width` and `0` to remove borders, could be buggy but it's the
+    better solution for now, waiting for `river-control-v2`
 -   "true" gaps _( see [stacktile][] )_
 -   per tags layout
--   command to turn on/off smart gaps/borders
 
 [river]: https://github.com/ifreund/river
 [contribution]: #Contributing
@@ -24,7 +23,8 @@ Features I may add, or not, still not decided on what I want,
 
 ## Building
 
-Same requirements as [river][], use [zig 0.8.0][] too
+Same requirements as **[river][]**, use [zig 0.8.0][] too, if **[river][]** and
+_rivertile_ works on your machine you shouldn't have any problems
 
 Init submodules:
 
@@ -39,10 +39,10 @@ Build, `e.g.`
 
 ## Usage
 
-Works exactly as `rivertile`, you can just replace `rivertile` name by
-`rivercarro` in your config
+Works exactly as _rivertile_, you can just replace _rivertile_ name by
+_rivercarro_ in your config, and read `rivertile(1)` man page
 
-`e.g.` In your river init (usually `$XDG_CONFIG_HOME/river/init`)
+`e.g.` In your **river** init (usually `$XDG_CONFIG_HOME/river/init`)
 
 ```bash
 
@@ -67,6 +67,25 @@ riverctl map normal $mod M     set-layout-value rivercarro string main_location 
 riverctl default-layout rivercarro
 exec rivercarro
 
+```
+
+### Command line options
+
+```bash
+$ rivercarro --help
+Usage: rivercarro [options]
+
+  -h, --help      Print this help message and exit.
+  -view-padding   Set the padding around views in pixels. (Default 6)
+  -outer-padding  Set the padding around the edge of the layout area in
+                  pixels. (Default 6)
+  -main-location  Set the initial location of the main area in the
+                  layout. (Default left)
+  -main-count     Set the initial number of views in the main area of the
+                  layout. (Default 1)
+  -main-factor    Set the initial ratio of main area to total layout
+                  area. (Default: 0.6)
+  -no-smart-gaps  Disable smart gaps
 ```
 
 ## Contributing
