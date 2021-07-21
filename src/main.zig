@@ -321,11 +321,11 @@ const Output = struct {
                 }
 
                 switch (output.main_location) {
-                    .left => layout.commit("rivercarro - left", ev.serial),
-                    .right => layout.commit("rivercarro - right", ev.serial),
-                    .top => layout.commit("rivercarro - top", ev.serial),
-                    .bottom => layout.commit("rivercarro - bottom", ev.serial),
-                    .monocle => layout.commit("rivercarro - monocle", ev.serial),
+                    .left => layout.commit("left", ev.serial),
+                    .right => layout.commit("right", ev.serial),
+                    .top => layout.commit("top", ev.serial),
+                    .bottom => layout.commit("bottom", ev.serial),
+                    .monocle => layout.commit("monocle", ev.serial),
                 }
             },
         }
