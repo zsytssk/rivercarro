@@ -14,7 +14,7 @@ pub fn build(b: *Builder) void {
     const mode = b.standardReleaseOptions();
 
     const scanner = ScanProtocolsStep.create(b);
-    scanner.addProtocolPath("protocol/river-layout-v2.xml");
+    scanner.addProtocolPath("protocol/river-layout-v3.xml");
 
     const exe = b.addExecutable("rivercarro", "src/main.zig");
     exe.setTarget(target);
