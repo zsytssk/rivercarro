@@ -70,13 +70,16 @@ exec rivercarro
 ## Command line options
 
 ```
-$ rivercarro --help
+$ rivercarro -help
 Usage: rivercarro [options]
 
-  -h, --help      Print this help message and exit.
+  -help           Print this help message and exit.
   -view-padding   Set the padding around views in pixels. (Default 6)
   -outer-padding  Set the padding around the edge of the layout area in
                   pixels. (Default 6)
+
+  The following commands may be sent to rivertile at runtime:
+
   -main-location  Set the initial location of the main area in the
                   layout. (Default left)
   -main-count     Set the initial number of views in the main area of the
