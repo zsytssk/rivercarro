@@ -24,16 +24,18 @@ const wayland = @import("wayland");
 const wl = wayland.client.wl;
 const river = wayland.client.river;
 
-const Args = @import("args.zig").Args;
-const FlagDef = @import("args.zig").FlagDef;
+const flags = @import("flags.zig");
 
 const usage =
     \\Usage: rivercarro [options]
     \\
-    \\  -h, --help      Print this help message and exit.
+    \\  -help           Print this help message and exit.
     \\  -view-padding   Set the padding around views in pixels. (Default 6)
     \\  -outer-padding  Set the padding around the edge of the layout area in
     \\                  pixels. (Default 6)
+    \\
+    \\  The following commands may be also sent to rivertile at runtime:
+    \\
     \\  -main-location  Set the initial location of the main area in the
     \\                  layout. (Default left)
     \\  -main-count     Set the initial number of views in the main area of the
@@ -335,42 +337,45 @@ const Output = struct {
 pub fn main() !void {
     // https://github.com/ziglang/zig/issues/7807
     const argv: [][*:0]const u8 = std.os.argv;
-    const args = Args(0, &[_]FlagDef{
-        .{ .name = "-h", .kind = .boolean },
-        .{ .name = "--help", .kind = .boolean },
+    const result = flags.parse(argv[1..], &[_]flags.Flag{
+        .{ .name = "-help", .kind = .boolean },
         .{ .name = "-view-padding", .kind = .arg },
         .{ .name = "-outer-padding", .kind = .arg },
         .{ .name = "-main-location", .kind = .arg },
         .{ .name = "-main-count", .kind = .arg },
         .{ .name = "-main-ratio", .kind = .arg },
         .{ .name = "-no-smart-gaps", .kind = .boolean },
-    }).parse(argv[1..]);
+    }) catch {
+        try std.io.getStdErr().writeAll(usage);
+        std.os.exit(1);
+    };
+    if (result.args.len != 0) fatalPrintUsage("unknown option '{s}'", .{result.args[0]});
 
-    if (args.boolFlag("-h") or args.boolFlag("--help")) {
+    if (result.boolFlag("-help")) {
         try std.io.getStdOut().writeAll(usage);
         std.os.exit(0);
     }
-    if (args.argFlag("-view-padding")) |raw| {
+    if (result.argFlag("-view-padding")) |raw| {
         default_view_padding = std.fmt.parseUnsigned(u32, mem.span(raw), 10) catch
-            fatal("invalid value '{s}' provided to -view-padding", .{raw});
+            fatalPrintUsage("invalid value '{s}' provided to -view-padding", .{raw});
     }
-    if (args.argFlag("-outer-padding")) |raw| {
+    if (result.argFlag("-outer-padding")) |raw| {
         default_outer_padding = std.fmt.parseUnsigned(u32, mem.span(raw), 10) catch
-            fatal("invalid value '{s}' provided to -outer-padding", .{raw});
+            fatalPrintUsage("invalid value '{s}' provided to -outer-padding", .{raw});
     }
-    if (args.argFlag("-main-location")) |raw| {
+    if (result.argFlag("-main-location")) |raw| {
         default_main_location = std.meta.stringToEnum(Location, mem.span(raw)) orelse
-            fatal("invalid value '{s}' provided to -main-location", .{raw});
+            fatalPrintUsage("invalid value '{s}' provided to -main-location", .{raw});
     }
-    if (args.argFlag("-main-count")) |raw| {
+    if (result.argFlag("-main-count")) |raw| {
         default_main_count = std.fmt.parseUnsigned(u32, mem.span(raw), 10) catch
-            fatal("invalid value '{s}' provided to -main-count", .{raw});
+            fatalPrintUsage("invalid value '{s}' provided to -main-count", .{raw});
     }
-    if (args.argFlag("-main-ratio")) |raw| {
+    if (result.argFlag("-main-ratio")) |raw| {
         default_main_ratio = std.fmt.parseFloat(f64, mem.span(raw)) catch
-            fatal("invalid value '{s}' provided to -main-ratio", .{raw});
+            fatalPrintUsage("invalid value '{s}' provided to -main-ratio", .{raw});
     }
-    if (args.boolFlag("-no-smart-gaps")) {
+    if (result.boolFlag("-no-smart-gaps")) {
         smart_gaps = false;
     }
 
@@ -426,8 +431,13 @@ fn registryListener(registry: *wl.Registry, event: wl.Registry.Event, context: *
     }
 }
 
-pub fn fatal(comptime format: []const u8, args: anytype) noreturn {
-    const stderr = std.io.getStdErr().writer();
-    stderr.print("err: " ++ format ++ "\n", args) catch {};
+fn fatal(comptime format: []const u8, args: anytype) noreturn {
+    std.log.err(format, args);
+    std.os.exit(1);
+}
+
+fn fatalPrintUsage(comptime format: []const u8, args: anytype) noreturn {
+    std.log.err(format, args);
+    std.io.getStdErr().writeAll(usage) catch {};
     std.os.exit(1);
 }
