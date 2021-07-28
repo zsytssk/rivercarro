@@ -1,20 +1,19 @@
+const std = @import("std");
 const Builder = @import("std").build.Builder;
 
 const ScanProtocolsStep = @import("deps/zig-wayland/build.zig").ScanProtocolsStep;
 
-pub fn build(b: *Builder) void {
-    // Standard target options allows the person running `zig build` to choose
-    // what target to build for. Here we do not override the defaults, which
-    // means any target is allowed, and the default is native. Other options
-    // for restricting supported target set are available.
+pub fn build(b: *Builder) !void {
     const target = b.standardTargetOptions(.{});
-
-    // Standard release options allow the person running `zig build` to select
-    // between Debug, ReleaseSafe, ReleaseFast, and ReleaseSmall.
     const mode = b.standardReleaseOptions();
 
     const scanner = ScanProtocolsStep.create(b);
-    scanner.addProtocolPath("protocol/river-layout-v3.xml");
+
+    const protocol_path = std.mem.trim(u8, try b.exec(
+        &[_][]const u8{ "pkg-config", "--variable=pkgdatadir", "river-protocols" },
+    ), &std.ascii.spaces);
+    const layout_protocol = try std.fs.path.join(b.allocator, &[_][]const u8{protocol_path, "river-layout-v3.xml"});
+    scanner.addProtocolPath(layout_protocol);
 
     const exe = b.addExecutable("rivercarro", "src/main.zig");
     exe.setTarget(target);
