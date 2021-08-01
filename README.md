@@ -103,6 +103,9 @@ git config format.subjectPrefix "PATCH rivercarro"
 Run `zig fmt` and wrap line at 100 columns unless it helps the
 readability.
 
+You can also found me on IRC `irc.libera.chat` as `novakane`, mostly on
+`#river`
+
 [git send-email]: https://git-send-email.io
 [public inbox]: https://lists.sr.ht/~novakane/public-inbox
 [~novakane/public-inbox@lists.sr.ht]: mailto:~novakane/public-inbox@lists.sr.ht
