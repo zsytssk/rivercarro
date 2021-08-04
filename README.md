@@ -8,18 +8,32 @@ Compared to _rivertile_, _rivercarro_ add:
 -   monocle layout
 -   smart gaps
 
-Features I may add, or not, still debating with myself,
-[contribution][] welcome:
+I don't intend to add a lot of complexity in _rivercarro_ and will
+probably try to stay as close as possible to _rivertile_. If you want
+a layout generator with more features and configuration, have a look
+at some others great community contributions like [stacktile][] or
+[kile][].
 
--   smart borders - using `river-control-unstable-v1` protocol to send
-    `border-width` and `0` to remove borders, could be buggy but it's the
-    better solution for now, waiting for `river-control-v2`
--   "true" gaps _( see [stacktile][] )_
--   per tag layout
+Though if you really want a feature, feel free to send patches,
+contribution are welcome even for features I don't planned to
+have.
+
+Features I may add, or not, still debating with myself:
+
+-   _smart borders_ - Using `river-control-unstable-v1` protocol to send
+    `border-width` and `0` to remove borders. It's a bit hacky and
+    could be buggy so if I do it I'll probably don't merge it in
+    `main` and wait for `river-control-v2`.
+-   _"true" gaps_ - Currently gaps are in fact
+    padding, true gaps would make it that you can really have inner or
+    outer gaps. _( see [stacktile][] )_
+-   _per tag layout_ - Low priority, and I'll probably don't make it
+    due to the reasons said above. Feel free to send a patch for it
+    though. I'll add it with pleasure.
 
 [river]: https://github.com/ifreund/river
-[contribution]: #Contributing
 [stacktile]: https://sr.ht/~leon_plickat/stacktile/
+[kile]: https://gitlab.com/snakedye/kile
 
 # Building
 
@@ -103,7 +117,7 @@ git config format.subjectPrefix "PATCH rivercarro"
 Run `zig fmt` and wrap line at 100 columns unless it helps the
 readability.
 
-You can also found me on IRC `irc.libera.chat` as `novakane`, mostly on
+You can also found me on _IRC_ `irc.libera.chat` as `novakane`, mostly on
 `#river`
 
 [git send-email]: https://git-send-email.io
@@ -116,11 +130,11 @@ Almost all credits go to [Isaac Freund][] and [Leon Henrik Plickat][]
 
 **Thanks to them!**
 
-[Isaac Freund]: https://github.com/ifreund
-[Leon Henrik Plickat]: https://sr.ht/~leon_plickat/
+[isaac freund]: https://github.com/ifreund
+[leon henrik plickat]: https://sr.ht/~leon_plickat/
 
 # License
 
 [GNU General Public License v3.0][]
 
-[GNU General Public License v3.0]: LICENSE
+[gnu general public license v3.0]: LICENSE
