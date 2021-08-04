@@ -36,7 +36,7 @@ const usage =
     \\  -outer-padding  Set the padding around the edge of the layout area in
     \\                  pixels. (Default 6)
     \\
-    \\  The following commands may be also sent to rivercarro at runtime:
+    \\  The following commands may also be sent to rivercarro at runtime:
     \\
     \\  -main-location  Set the initial location of the main area in the
     \\                  layout. (Default left)

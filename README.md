@@ -15,7 +15,7 @@ Features I may add, or not, still debating with myself,
     `border-width` and `0` to remove borders, could be buggy but it's the
     better solution for now, waiting for `river-control-v2`
 -   "true" gaps _( see [stacktile][] )_
--   per tags layout
+-   per tag layout
 
 [river]: https://github.com/ifreund/river
 [contribution]: #Contributing
@@ -78,7 +78,7 @@ Usage: rivercarro [options]
   -outer-padding  Set the padding around the edge of the layout area in
                   pixels. (Default 6)
 
-  The following commands may be sent to rivertile at runtime:
+  The following commands may also be sent to rivercarro at runtime:
 
   -main-location  Set the initial location of the main area in the
                   layout. (Default left)
