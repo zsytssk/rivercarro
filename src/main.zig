@@ -26,6 +26,8 @@ const river = wayland.client.river;
 
 const flags = @import("flags.zig");
 
+const log = std.log.scoped(.rivercarro);
+
 const usage =
     \\Usage: rivercarro [options]
     \\
@@ -34,7 +36,7 @@ const usage =
     \\  -outer-padding  Set the padding around the edge of the layout area in
     \\                  pixels. (Default 6)
     \\
-    \\  The following commands may be also sent to rivertile at runtime:
+    \\  The following commands may be also sent to rivercarro at runtime:
     \\
     \\  -main-location  Set the initial location of the main area in the
     \\                  layout. (Default left)
@@ -132,31 +134,31 @@ const Output = struct {
             .user_command => |ev| {
                 var it = mem.tokenize(mem.span(ev.command), " ");
                 const raw_cmd = it.next() orelse {
-                    std.log.err("not enough arguments", .{});
+                    log.err("not enough arguments", .{});
                     return;
                 };
                 const raw_arg = it.next() orelse {
-                    std.log.err("not enough arguments", .{});
+                    log.err("not enough arguments", .{});
                     return;
                 };
                 if (it.next() != null) {
-                    std.log.err("too many arguments", .{});
+                    log.err("too many arguments", .{});
                     return;
                 }
                 const cmd = std.meta.stringToEnum(Command, raw_cmd) orelse {
-                    std.log.err("unknown command: {s}", .{raw_cmd});
+                    log.err("unknown command: {s}", .{raw_cmd});
                     return;
                 };
                 switch (cmd) {
                     .@"main-location" => {
                         output.main_location = std.meta.stringToEnum(Location, raw_arg) orelse {
-                            std.log.err("unknown location: {s}", .{raw_arg});
+                            log.err("unknown location: {s}", .{raw_arg});
                             return;
                         };
                     },
                     .@"main-count" => {
                         const arg = std.fmt.parseInt(i32, raw_arg, 10) catch |err| {
-                            std.log.err("failed to parse argument: {}", .{err});
+                            log.err("failed to parse argument: {}", .{err});
                             return;
                         };
                         switch (raw_arg[0]) {
@@ -174,7 +176,7 @@ const Output = struct {
                     },
                     .@"main-ratio" => {
                         const arg = std.fmt.parseFloat(f64, raw_arg) catch |err| {
-                            std.log.err("failed to parse argument: {}", .{err});
+                            log.err("failed to parse argument: {}", .{err});
                             return;
                         };
                         switch (raw_arg[0]) {
@@ -194,7 +196,10 @@ const Output = struct {
                 else
                     0;
 
-                only_one_view = if (ev.view_count == 1 or output.main_location == .monocle) true else false;
+                only_one_view = if (ev.view_count == 1 or output.main_location == .monocle)
+                    true
+                else
+                    false;
 
                 // Don't add gaps if there is only one view
                 if (only_one_view and smart_gaps) {
@@ -392,7 +397,7 @@ pub fn main() !void {
     _ = try display.roundtrip();
 
     if (context.layout_manager == null) {
-        fatal("wayland compositor does not support river_layout_v3.\n", .{});
+        fatal("Wayland compositor does not support river_layout_v3.\n", .{});
     }
 
     context.initialized = true;
@@ -432,12 +437,12 @@ fn registryListener(registry: *wl.Registry, event: wl.Registry.Event, context: *
 }
 
 fn fatal(comptime format: []const u8, args: anytype) noreturn {
-    std.log.err(format, args);
+    log.err(format, args);
     std.os.exit(1);
 }
 
 fn fatalPrintUsage(comptime format: []const u8, args: anytype) noreturn {
-    std.log.err(format, args);
+    log.err(format, args);
     std.io.getStdErr().writeAll(usage) catch {};
     std.os.exit(1);
 }
