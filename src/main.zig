@@ -271,22 +271,24 @@ const Output = struct {
                     } else {
                         if (i < main_count) {
                             x = 0;
-                            y = @intCast(i32, (i * main_height) + if (i > 0) main_height_rem else 0);
-                            width = main_width;
-                            height = main_height + if (i == 0) main_height_rem else 0;
+                            y = @intCast(i32, (i * main_height) +
+                            if (i > 0) default_view_padding else 0 +
+                                if (i > 0) main_height_rem else 0);
+                            width = main_width - default_view_padding / 2;
+                            height = main_height -
+                            if (i > 0) default_view_padding else 0 +
+                            if (i == 0) main_height_rem else 0;
                         } else {
-                            x = @intCast(i32, main_width);
-                            y = @intCast(i32, (i - main_count) * secondary_height +
+                            x = @intCast(i32, (main_width - default_view_padding / 2) + default_view_padding);
+                            y = @intCast(i32, ((i - main_count) * secondary_height) +
+                                if (i > main_count) default_view_padding  else 0 +
                                 if (i > main_count) secondary_height_rem else 0);
-                            width = secondary_width;
-                            height = secondary_height + if (i == main_count) secondary_height_rem else 0;
+                            width = secondary_width - default_view_padding / 2;
+                            height = secondary_height -
+                                if (i > main_count) default_view_padding else 0 +
+                                if (i == main_count) secondary_height_rem else 0;
                         }
                     }
-
-                    x += @intCast(i32, default_view_padding);
-                    y += @intCast(i32, default_view_padding);
-                    width -= 2 * default_view_padding;
-                    height -= 2 * default_view_padding;
 
                     switch (output.main_location) {
                         .left => layout.pushViewDimensions(

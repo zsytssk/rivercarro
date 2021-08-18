@@ -7,29 +7,13 @@ Compared to _rivertile_, _rivercarro_ add:
 
 -   monocle layout
 -   smart gaps
+-   "true" inner gaps instead of padding around views
 
-I don't intend to add a lot of complexity in _rivercarro_ and will
-probably try to stay as close as possible to _rivertile_. If you want
-a layout generator with more features and configuration, have a look
-at some others great community contributions like [stacktile][] or
-[kile][].
-
-Though if you really want a feature, feel free to send patches,
-contribution are welcome even for features I don't planned to
-have.
-
-Features I may add, or not, still debating with myself:
-
--   _smart borders_ - Using `river-control-unstable-v1` protocol to send
-    `border-width` and `0` to remove borders. It's a bit hacky and
-    could be buggy so if I do it I'll probably don't merge it in
-    `main` and wait for `river-control-v2`.
--   _"true" gaps_ - Currently gaps are in fact
-    padding, true gaps would make it that you can really have inner or
-    outer gaps. _( see [stacktile][] )_
--   _per tag layout_ - Low priority, and I'll probably don't make it
-    due to the reasons said above. Feel free to send a patch for it
-    though. I'll add it with pleasure.
+I don't want to add too much complexity, the only thing I intend
+to add now is `smart borders`, after that I'll consider _rivercarro_
+features complete. If you want a layout generator with more features
+and configuration, have a look at some others great community
+contributions like [stacktile][] or [kile][].
 
 [river]: https://github.com/ifreund/river
 [stacktile]: https://sr.ht/~leon_plickat/stacktile/
@@ -124,7 +108,7 @@ You can also found me on _IRC_ `irc.libera.chat` as `novakane`, mostly on
 [public inbox]: https://lists.sr.ht/~novakane/public-inbox
 [~novakane/public-inbox@lists.sr.ht]: mailto:~novakane/public-inbox@lists.sr.ht
 
-# Credits
+# Thanks
 
 Almost all credits go to [Isaac Freund][] and [Leon Henrik Plickat][]
 
