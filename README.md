@@ -32,6 +32,14 @@ Build, `e.g.`
 
     zig build --prefix ~/.local
 
+Note that _rivercarro_ use pkgconfig for the `river-layout-v3`
+protocol so if you did not installed _river_ system wide you need to
+set `PKG_CONFIG_PATH` in your shell rc.
+
+e.g.
+
+    export PKG_CONFIG_PATH="$HOME/.local/share/pkgconfig"
+
 [river]: https://github.com/ifreund/river#building
 [zig 0.8.0]: https://ziglang.org/download/
 
