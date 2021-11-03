@@ -15,10 +15,13 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+const build_options = @import("build_options");
+
 const std = @import("std");
+const assert = std.debug.assert;
 const mem = std.mem;
 const math = std.math;
-const assert = std.debug.assert;
+const os = std.os;
 
 const wayland = @import("wayland");
 const wl = wayland.client.wl;
