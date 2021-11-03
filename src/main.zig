@@ -34,7 +34,8 @@ const log = std.log.scoped(.rivercarro);
 const usage =
     \\Usage: rivercarro [options]
     \\
-    \\  -help           Print this help message and exit.
+    \\  -h              Print this help message and exit.
+    \\  -version        Print the version number and exit.
     \\  -view-padding   Set the padding around views in pixels. (Default 6)
     \\  -outer-padding  Set the padding around the edge of the layout area in
     \\                  pixels. (Default 6)
@@ -346,9 +347,10 @@ const Output = struct {
 
 pub fn main() !void {
     // https://github.com/ziglang/zig/issues/7807
-    const argv: [][*:0]const u8 = std.os.argv;
+    const argv: [][*:0]const u8 = os.argv;
     const result = flags.parse(argv[1..], &[_]flags.Flag{
-        .{ .name = "-help", .kind = .boolean },
+        .{ .name = "-h", .kind = .boolean },
+        .{ .name = "-version", .kind = .boolean },
         .{ .name = "-view-padding", .kind = .arg },
         .{ .name = "-outer-padding", .kind = .arg },
         .{ .name = "-main-location", .kind = .arg },
@@ -357,13 +359,17 @@ pub fn main() !void {
         .{ .name = "-no-smart-gaps", .kind = .boolean },
     }) catch {
         try std.io.getStdErr().writeAll(usage);
-        std.os.exit(1);
+        os.exit(1);
     };
     if (result.args.len != 0) fatalPrintUsage("unknown option '{s}'", .{result.args[0]});
 
-    if (result.boolFlag("-help")) {
+    if (result.boolFlag("-h")) {
         try std.io.getStdOut().writeAll(usage);
-        std.os.exit(0);
+        os.exit(0);
+    }
+    if (result.boolFlag("-version")) {
+        try std.io.getStdOut().writeAll(build_options.version ++ "\n");
+        os.exit(0);
     }
     if (result.argFlag("-view-padding")) |raw| {
         default_view_padding = std.fmt.parseUnsigned(u32, mem.span(raw), 10) catch
