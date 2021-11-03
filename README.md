@@ -21,8 +21,8 @@ contributions like [stacktile][] or [kile][].
 
 # Building
 
-Same requirements as **[river][]**, use [zig 0.8.0][] too, if **[river][]** and
-_rivertile_ works on your machine you shouldn't have any problems
+Same requirements as **[river][]**, use [zig 0.8.1][], if **[river][]** and
+_rivertile_ works on your machine you shouldn't have any problems.
 
 Init submodules:
 
@@ -41,7 +41,7 @@ e.g.
     export PKG_CONFIG_PATH="$HOME/.local/share/pkgconfig"
 
 [river]: https://github.com/ifreund/river#building
-[zig 0.8.0]: https://ziglang.org/download/
+[zig 0.8.1]: https://ziglang.org/download/
 
 # Usage
 
@@ -79,7 +79,8 @@ exec rivercarro
 $ rivercarro -help
 Usage: rivercarro [options]
 
-  -help           Print this help message and exit.
+  -h              Print this help message and exit.
+  -version        Print the version number and exit.
   -view-padding   Set the padding around views in pixels. (Default 6)
   -outer-padding  Set the padding around the edge of the layout area in
                   pixels. (Default 6)
@@ -97,22 +98,26 @@ Usage: rivercarro [options]
 
 # Contributing
 
-For patches, questions or discussion use [git send-email][] to send
-a mail to my [public inbox][] [~novakane/public-inbox@lists.sr.ht][]
-with project prefix set to `rivercarro`:
+For patches, questions or discussion send a [plain text] mail to my
+[public inbox][] [~novakane/public-inbox@lists.sr.ht][] with project
+prefix set to `rivercarro`:
 
 ```
 git config sendemail.to "~novakane/public-inbox@lists.sr.ht"
 git config format.subjectPrefix "PATCH rivercarro"
 ```
 
+See [here] for some great resource on how to use `git send-email`
+if you're not used to it.
+
 Run `zig fmt` and wrap line at 100 columns unless it helps the
 readability.
 
 You can also found me on _IRC_ `irc.libera.chat` as `novakane`, mostly on
-`#river`
+`#river`.
 
-[git send-email]: https://git-send-email.io
+[plain text]: https://useplaintext.email/
+[here]: https://git-send-email.io
 [public inbox]: https://lists.sr.ht/~novakane/public-inbox
 [~novakane/public-inbox@lists.sr.ht]: mailto:~novakane/public-inbox@lists.sr.ht
 

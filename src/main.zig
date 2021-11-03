@@ -1,4 +1,4 @@
-// Layout client for river <https://github.com/ifreund/river>
+// Layout generator for river <https://github.com/ifreund/river>
 //
 // Copyright 2021 Hugo Machet
 //
@@ -276,16 +276,16 @@ const Output = struct {
                         if (i < main_count) {
                             x = 0;
                             y = @intCast(i32, (i * main_height) +
-                            if (i > 0) default_view_padding else 0 +
+                                if (i > 0) default_view_padding else 0 +
                                 if (i > 0) main_height_rem else 0);
                             width = main_width - default_view_padding / 2;
                             height = main_height -
-                            if (i > 0) default_view_padding else 0 +
-                            if (i == 0) main_height_rem else 0;
+                                if (i > 0) default_view_padding else 0 +
+                                if (i == 0) main_height_rem else 0;
                         } else {
                             x = @intCast(i32, (main_width - default_view_padding / 2) + default_view_padding);
                             y = @intCast(i32, ((i - main_count) * secondary_height) +
-                                if (i > main_count) default_view_padding  else 0 +
+                                if (i > main_count) default_view_padding else 0 +
                                 if (i > main_count) secondary_height_rem else 0);
                             width = secondary_width - default_view_padding / 2;
                             height = secondary_height -
@@ -397,7 +397,7 @@ pub fn main() !void {
 
     const display = wl.Display.connect(null) catch {
         std.debug.warn("Unable to connect to Wayland server.\n", .{});
-        std.os.exit(1);
+        os.exit(1);
     };
     defer display.disconnect();
 
@@ -449,11 +449,11 @@ fn registryListener(registry: *wl.Registry, event: wl.Registry.Event, context: *
 
 fn fatal(comptime format: []const u8, args: anytype) noreturn {
     log.err(format, args);
-    std.os.exit(1);
+    os.exit(1);
 }
 
 fn fatalPrintUsage(comptime format: []const u8, args: anytype) noreturn {
     log.err(format, args);
     std.io.getStdErr().writeAll(usage) catch {};
-    std.os.exit(1);
+    os.exit(1);
 }
