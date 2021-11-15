@@ -1,0 +1,14 @@
+image: archlinux
+packages:
+  - zig
+  - wayland
+  - river
+sources:
+  - https://git.sr.ht/~novakane/rivercarro
+tasks:
+  - build: |
+      cd rivercarro
+      zig build
+  - format: |
+      cd rivercarro
+      zig fmt src/*
