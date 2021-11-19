@@ -108,7 +108,7 @@ git config format.subjectPrefix "PATCH rivercarro"
 ```
 
 See [here] for some great resource on how to use `git send-email`
-if you're not used to it.
+if you're not used to it, and my [wiki][].
 
 Run `zig fmt` and wrap line at 100 columns unless it helps the
 readability.
@@ -117,9 +117,10 @@ You can also found me on _IRC_ `irc.libera.chat` as `novakane`, mostly on
 `#river`.
 
 [plain text]: https://useplaintext.email/
-[here]: https://git-send-email.io
 [public inbox]: https://lists.sr.ht/~novakane/public-inbox
 [~novakane/public-inbox@lists.sr.ht]: mailto:~novakane/public-inbox@lists.sr.ht
+[here]: https://git-send-email.io
+[wiki]: https://man.sr.ht/~novakane/guides/
 
 # Thanks
 
