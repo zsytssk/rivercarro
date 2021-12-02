@@ -133,6 +133,6 @@ Almost all credits go to [Isaac Freund][] and [Leon Henrik Plickat][]
 
 # License
 
-[GNU General Public License v3.0][]
+[GNU General Public License v3.0 or later][]
 
-[gnu general public license v3.0]: LICENSE
+[gnu general public license v3.0 or later]: COPYING
