@@ -1,7 +1,7 @@
 # Rivercarro
 
 A slightly modified version of _rivertile_ layout generator for
-**[river][]**
+**[river]**
 
 Compared to _rivertile_, _rivercarro_ add:
 
@@ -13,15 +13,11 @@ I don't want to add too much complexity, the only thing I intend
 to add now is `smart borders`, after that I'll consider _rivercarro_
 features complete. If you want a layout generator with more features
 and configuration, have a look at some others great community
-contributions like [stacktile][] or [kile][].
+contributions like [stacktile] or [kile].
 
-[river]: https://github.com/ifreund/river
-[stacktile]: https://sr.ht/~leon_plickat/stacktile/
-[kile]: https://gitlab.com/snakedye/kile
+## Building
 
-# Building
-
-Same requirements as **[river][]**, use [zig 0.8.1][], if **[river][]** and
+Same requirements as **[river]**, use [zig] 0.9, if **[river]** and
 _rivertile_ works on your machine you shouldn't have any problems.
 
 Init submodules:
@@ -34,16 +30,11 @@ Build, `e.g.`
 
 Note that _rivercarro_ use pkgconfig for the `river-layout-v3`
 protocol so if you did not installed _river_ system wide you need to
-set `PKG_CONFIG_PATH` in your shell rc.
-
-e.g.
+set `PKG_CONFIG_PATH` in your shell rc, e.g.
 
     export PKG_CONFIG_PATH="$HOME/.local/share/pkgconfig"
 
-[river]: https://github.com/ifreund/river#building
-[zig 0.8.1]: https://ziglang.org/download/
-
-# Usage
+## Usage
 
 Works exactly as _rivertile_, you can just replace _rivertile_ name by
 _rivercarro_ in your config, and read `rivertile(1)` man page
@@ -73,7 +64,7 @@ riverctl default-layout rivercarro
 exec rivercarro
 ```
 
-## Command line options
+### Command line options
 
 ```
 $ rivercarro -help
@@ -96,19 +87,19 @@ Usage: rivercarro [options]
   -no-smart-gaps  Disable smart gaps
 ```
 
-# Contributing
+## Contributing
 
 For patches, questions or discussion send a [plain text] mail to my
-[public inbox][] [~novakane/public-inbox@lists.sr.ht][] with project
+[public inbox] [~novakane/public-inbox@lists.sr.ht] with project
 prefix set to `rivercarro`:
 
-```
+```bash
 git config sendemail.to "~novakane/public-inbox@lists.sr.ht"
 git config format.subjectPrefix "PATCH rivercarro"
 ```
 
 See [here] for some great resource on how to use `git send-email`
-if you're not used to it, and my [wiki][].
+if you're not used to it, and my [wiki].
 
 Run `zig fmt` and wrap line at 100 columns unless it helps the
 readability.
@@ -116,23 +107,25 @@ readability.
 You can also found me on _IRC_ `irc.libera.chat` as `novakane`, mostly on
 `#river`.
 
+## Thanks
+
+Almost all credits go to [Isaac Freund] and [Leon Henrik Plickat]
+
+**Thanks to them!**
+
+## License
+
+[GNU General Public License v3.0 or later]
+
+[river]: https://github.com/ifreund/river
+[stacktile]: https://sr.ht/~leon_plickat/stacktile/
+[kile]: https://gitlab.com/snakedye/kile
+[zig]: https://ziglang.org/download/
 [plain text]: https://useplaintext.email/
 [public inbox]: https://lists.sr.ht/~novakane/public-inbox
 [~novakane/public-inbox@lists.sr.ht]: mailto:~novakane/public-inbox@lists.sr.ht
 [here]: https://git-send-email.io
 [wiki]: https://man.sr.ht/~novakane/guides/
-
-# Thanks
-
-Almost all credits go to [Isaac Freund][] and [Leon Henrik Plickat][]
-
-**Thanks to them!**
-
 [isaac freund]: https://github.com/ifreund
 [leon henrik plickat]: https://sr.ht/~leon_plickat/
-
-# License
-
-[GNU General Public License v3.0 or later][]
-
 [gnu general public license v3.0 or later]: COPYING

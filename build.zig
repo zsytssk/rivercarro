@@ -6,7 +6,7 @@ const mem = std.mem;
 
 const ScanProtocolsStep = @import("deps/zig-wayland/build.zig").ScanProtocolsStep;
 
-/// While a river release is in development, this string should contain the version in development
+/// While a rivercarror release is in development, this string should contain the version in development
 /// with the "-dev" suffix.
 /// When a release is tagged, the "-dev" suffix should be removed for the commit that gets tagged.
 /// Directly after the tagged commit, the version should be bumped and the "-dev" suffix added.
@@ -57,10 +57,16 @@ pub fn build(b: *Builder) !void {
     const exe = b.addExecutable("rivercarro", "src/main.zig");
     exe.setTarget(target);
     exe.setBuildMode(mode);
-    exe.addBuildOption([:0]const u8, "version", full_version);
+
+    const options = b.addOptions();
+    options.addOption([]const u8, "version", full_version);
+    exe.addOptions("build_options", options);
 
     exe.step.dependOn(&scanner.step);
-    exe.addPackage(scanner.getPkg());
+    exe.addPackage(.{
+        .name = "wayland",
+        .path = .{ .generated = &scanner.result },
+    });
     exe.linkLibC();
     exe.linkSystemLibrary("wayland-client");
 
@@ -82,6 +88,7 @@ pub fn build(b: *Builder) !void {
     const run_step = b.step("run", "Run the app");
     run_step.dependOn(&run_cmd.step);
 }
+
 const ScdocStep = struct {
     const scd_paths = [_][]const u8{"doc/rivercarro.1.scd"};
 
@@ -97,7 +104,7 @@ const ScdocStep = struct {
     fn init(builder: *Builder) ScdocStep {
         return ScdocStep{
             .builder = builder,
-            .step = Step.init(.Custom, "Generate man pages", builder.allocator, make),
+            .step = Step.init(.custom, "Generate man pages", builder.allocator, make),
         };
     }
 

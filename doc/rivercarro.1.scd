@@ -6,11 +6,11 @@ rivercarro - tiled layout generator for river
 
 # SYNOPSIS
 
-*rivercarro* [_options_]
+*rivercarro* [options...]
 
 # DESCRIPTION
 
-*rivercarro* is a fork of *rivertile*(1) layout generator for *river*(1).
+rivercarro is a fork of *rivertile*(1) layout generator for *river*(1).
 It provides a simple tiled layout with split main/secondary stacks. The
 initial state may be configured with various options passed on startup. Some
 values may additionally be modified while rivercarro is running with the
@@ -30,24 +30,32 @@ In addition to *rivertile*(1), *rivercarro* provides:
 *-version*
 	Print the version number and exit.
 
-*-view-padding* _pixels_
-	Set the padding around views in pixels. (Default: 6)
+*-view-padding* <pixels>
+	Set the padding around views in pixels.
 
-*-outer-padding* _pixels_
+	Default: 6
+
+*-outer-padding* <pixels>
 	Set the padding around the edge of the layout area in pixels.
-	(Default: 6)
 
-*-main-location* [*top*|*bottom*|*left*|*right*|*monocle*]
+	Default: 6
+
+*-main-location* <top|bottom|left|right|monocle>
 	Set the initial location of the main area in the layout.
-	(Default: *left*)
 
-*-main-count* _count_
+	Default: left
+
+*-main-count* <count>
 	Set the initial number of views in the main area of the
-	layout. (Default: 1)
+	layout.
 
-*-main-ratio* _ratio_
+	Default: 1
+
+*-main-ratio* <ratio>
 	Set the initial ratio of the main area to total layout area. The
-	_ratio_ must be between 0.1 and 0.9, inclusive. (Default: 0.6)
+	_ratio_ must be between 0.1 and 0.9, inclusive.
+
+	Default: 0.6
 
 *-no-smart-gaps*
 	Disable smart gaps.
@@ -57,15 +65,15 @@ In addition to *rivertile*(1), *rivercarro* provides:
 These commands may be sent to rivercarro at runtime with the help of
 *riverctl*(1).
 
-*main-location* [*top*|*bottom*|*left*|*right*|*monocle*]
+*main-location* <top|bottom|left|right|monocle>
 	Set the location of the main area in the layout.
 
-*main-count* _value_
+*main-count* <value>
 	Set or modify the number of views in the main area of the layout. If
 	_value_ is prefixed by a +/- sign, _value_ is added/subtracted from the
 	current count. If there is no sign, the main count is set to _value_.
 
-*main-ratio* _value_
+*main-ratio* <value>
 	Set or modify the ratio of the main area to total layout area. If
 	_value_ is prefixed by a +/- sign, _value_ is added/subtracted from
 	the current ratio. If there is no sign, the main ratio is set to

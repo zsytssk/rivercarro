@@ -136,7 +136,7 @@ const Output = struct {
             .namespace_in_use => fatal("namespace 'rivercarro' already in use.", .{}),
 
             .user_command => |ev| {
-                var it = mem.tokenize(mem.span(ev.command), " ");
+                var it = mem.tokenize(u8, mem.span(ev.command), " ");
                 const raw_cmd = it.next() orelse {
                     log.err("not enough arguments", .{});
                     return;
@@ -396,7 +396,7 @@ pub fn main() !void {
     }
 
     const display = wl.Display.connect(null) catch {
-        std.debug.warn("Unable to connect to Wayland server.\n", .{});
+        std.debug.print("Unable to connect to Wayland server.\n", .{});
         os.exit(1);
     };
     defer display.disconnect();
