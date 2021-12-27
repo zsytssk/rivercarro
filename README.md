@@ -3,7 +3,7 @@
 A slightly modified version of _rivertile_ layout generator for
 **[river]**
 
-Compared to _rivertile_, _rivercarro_ add:
+Compared to _rivertile_, _rivercarro_ adds:
 
 -   monocle layout
 -   smart gaps
