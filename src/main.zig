@@ -372,23 +372,23 @@ pub fn main() !void {
         os.exit(0);
     }
     if (result.argFlag("-view-padding")) |raw| {
-        default_view_padding = std.fmt.parseUnsigned(u32, mem.span(raw), 10) catch
+        default_view_padding = std.fmt.parseUnsigned(u32, raw, 10) catch
             fatalPrintUsage("invalid value '{s}' provided to -view-padding", .{raw});
     }
     if (result.argFlag("-outer-padding")) |raw| {
-        default_outer_padding = std.fmt.parseUnsigned(u32, mem.span(raw), 10) catch
+        default_outer_padding = std.fmt.parseUnsigned(u32, raw, 10) catch
             fatalPrintUsage("invalid value '{s}' provided to -outer-padding", .{raw});
     }
     if (result.argFlag("-main-location")) |raw| {
-        default_main_location = std.meta.stringToEnum(Location, mem.span(raw)) orelse
+        default_main_location = std.meta.stringToEnum(Location, raw) orelse
             fatalPrintUsage("invalid value '{s}' provided to -main-location", .{raw});
     }
     if (result.argFlag("-main-count")) |raw| {
-        default_main_count = std.fmt.parseUnsigned(u32, mem.span(raw), 10) catch
+        default_main_count = std.fmt.parseUnsigned(u32, raw, 10) catch
             fatalPrintUsage("invalid value '{s}' provided to -main-count", .{raw});
     }
     if (result.argFlag("-main-ratio")) |raw| {
-        default_main_ratio = std.fmt.parseFloat(f64, mem.span(raw)) catch
+        default_main_ratio = std.fmt.parseFloat(f64, raw) catch
             fatalPrintUsage("invalid value '{s}' provided to -main-ratio", .{raw});
     }
     if (result.boolFlag("-no-smart-gaps")) {
