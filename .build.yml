@@ -1,0 +1,55 @@
+image: alpine/edge
+packages:
+  - eudev-dev
+  - libinput-dev
+  - libseat-dev
+  - mesa-dev
+  - libffi-dev
+  - expat-dev
+  - libxkbcommon-dev
+  - xcb-util-image-dev
+  - xcb-util-renderutil-dev
+  - xcb-util-wm-dev
+  - pixman-dev
+  - libevdev-dev
+  - wayland-protocols
+  - meson
+  - scdoc
+  - tar
+  - wget
+  - xz
+sources:
+  # Use mirrors for wayland/wlroots as fdo gitlab has some connectivity
+  # issue lastly.
+  - https://git.sr.ht/~novakane/wlroots
+  - https://git.sr.ht/~novakane/wayland
+  - https://github.com/riverwm/river.git
+  - https://git.sr.ht/~novakane/rivercarro
+tasks:
+  - install_deps: |
+      cd wayland
+      git checkout 1.20.0
+      meson build -Ddocumentation=false -Dtests=false --prefix /usr
+      sudo ninja -C build install
+      cd ..
+
+      cd wlroots
+      git checkout 0.15.0
+      meson build --auto-features=enabled -Drenderers=gles2 -Dexamples=false \
+            -Dwerror=false -Db_ndebug=false -Dxwayland=disabled --prefix /usr
+      sudo ninja -C build/ install
+      cd ..
+
+      wget https://ziglang.org/download/0.9.0/zig-linux-x86_64-0.9.0.tar.xz
+      tar -xvf zig-linux-x86_64-0.9.0.tar.xz
+      sudo mv zig-linux-x86_64-0.9.0/zig /usr/bin/
+      sudo mv zig-linux-x86_64-0.9.0/lib /usr/lib/zig
+
+      cd river
+      sudo zig build --prefix /usr
+  - build: |
+      cd rivercarro
+      zig build
+  - format: |
+      cd rivercarro
+      zig fmt --check src/
