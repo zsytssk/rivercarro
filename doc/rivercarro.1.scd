@@ -21,6 +21,7 @@ In addition to *rivertile*(1), *rivercarro* provides:
 - Monocle layout, views will takes all the usable area on the screen.
 - Smart gaps, if there is only one view, gaps will be disable.
 - Inner gaps instead of padding around views.
+- Limit the width of the usable area of the screen.
 
 # OPTIONS
 
@@ -57,6 +58,12 @@ In addition to *rivertile*(1), *rivercarro* provides:
 
 	Default: 0.6
 
+*-width-ratio* <ratio>
+	Set the initial ratio of the width of the usable area of the
+	screen. The _ratio_ must be between 0.1 and 1.0, inclusive.
+
+	Default: 1.0
+
 *-no-smart-gaps*
 	Disable smart gaps.
 
@@ -80,6 +87,13 @@ These commands may be sent to rivercarro at runtime with the help of
 	_value_. Note that the ratio will always be clamped to the range
 	0.1 to 0.9.
 
+*width-ratio* <value>
+	Set or modify the ratio of the the width of the usable area of
+	the screen. If _value_ is prefixed by a +/- sign, _value_ is
+	added/subtracted from the current ratio. If there is no sign, the
+	width ratio is set to _value_. Note that the ratio will always be
+	clamped to the range 0.1 to 1.0.
+
 # EXAMPLES
 
 Start *rivercarro* with 4 pixels outer padding and the *top* main location:
@@ -93,6 +107,10 @@ Increase the main ratio by 0.1 at runtime:
 Set the main count to 3 at runtime:
 
 	riverctl send-layout-cmd rivercarro "main-count 3"
+
+Set the width ratio at 70% at runtime:
+
+	riverctl send-layout-cmd rivercarro "width-ratio 0.7"
 
 # SEE ALSO
 

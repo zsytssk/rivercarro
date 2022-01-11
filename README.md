@@ -8,6 +8,7 @@ Compared to _rivertile_, _rivercarro_ adds:
 -   monocle layout
 -   smart gaps
 -   "true" inner gaps instead of padding around views
+-   Limit the width of the usable area of the screen.
 
 I don't want to add too much complexity, the only thing I intend
 to add now is `smart borders`, after that I'll consider _rivercarro_
@@ -37,7 +38,7 @@ set `PKG_CONFIG_PATH` in your shell rc, e.g.
 ## Usage
 
 Works exactly as _rivertile_, you can just replace _rivertile_ name by
-_rivercarro_ in your config, and read `rivertile(1)` man page
+_rivercarro_ in your config, and read `rivercarro(1)` man page
 
 `e.g.` In your **river** init (usually `$XDG_CONFIG_HOME/river/init`)
 
@@ -84,6 +85,8 @@ Usage: rivercarro [options]
                   layout. (Default 1)
   -main-ratio     Set the initial ratio of main area to total layout
                   area. (Default: 0.6)
+  -width-ratio    Set the ratio of the usable area width of the screen.
+                  (Default: 1.0)
   -no-smart-gaps  Disable smart gaps
 ```
 
@@ -92,6 +95,8 @@ Usage: rivercarro [options]
 For patches, questions or discussion send a [plain text] mail to my
 [public inbox] [~novakane/public-inbox@lists.sr.ht] with project
 prefix set to `rivercarro`:
+
+You can configure your repo like so:
 
 ```bash
 git config sendemail.to "~novakane/public-inbox@lists.sr.ht"

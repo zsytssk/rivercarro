@@ -48,6 +48,8 @@ const usage =
     \\                  layout. (Default 1)
     \\  -main-ratio     Set the initial ratio of main area to total layout
     \\                  area. (Default: 0.6)
+    \\  -width-ratio    Set the ratio of the usable area width of the screen.
+    \\                  (Default: 1.0)
     \\  -no-smart-gaps  Disable smart gaps
     \\
 ;
@@ -56,6 +58,7 @@ const Command = enum {
     @"main-location",
     @"main-count",
     @"main-ratio",
+    @"width-ratio",
 };
 
 const Location = enum {
@@ -72,6 +75,7 @@ var default_outer_padding: u32 = 6;
 var default_main_location: Location = .left;
 var default_main_count: u32 = 1;
 var default_main_ratio: f64 = 0.6;
+var default_width_ratio: f64 = 1.0;
 var smart_gaps: bool = true;
 
 var only_one_view: bool = false;
@@ -101,6 +105,7 @@ const Output = struct {
     main_location: Location,
     main_count: u32,
     main_ratio: f64,
+    width_ratio: f64,
 
     outer_padding: u32,
     view_padding: u32,
@@ -114,6 +119,7 @@ const Output = struct {
             .main_location = default_main_location,
             .main_count = default_main_count,
             .main_ratio = default_main_ratio,
+            .width_ratio = default_width_ratio,
             .outer_padding = default_outer_padding,
             .view_padding = default_view_padding,
         };
@@ -190,6 +196,18 @@ const Output = struct {
                             else => output.main_ratio = math.clamp(arg, 0.1, 0.9),
                         }
                     },
+                    .@"width-ratio" => {
+                        const arg = std.fmt.parseFloat(f64, raw_arg) catch |err| {
+                            log.err("failed to parse argument: {}", .{err});
+                            return;
+                        };
+                        switch (raw_arg[0]) {
+                            '+', '-' => {
+                                output.width_ratio = math.clamp(output.width_ratio + arg, 0.1, 1.0);
+                            },
+                            else => output.width_ratio = math.clamp(arg, 0.1, 1.0),
+                        }
+                    },
                 }
             },
 
@@ -215,12 +233,18 @@ const Output = struct {
                 }
 
                 const usable_width = switch (output.main_location) {
-                    .left, .right, .monocle => ev.usable_width - 2 * default_outer_padding,
+                    .left, .right, .monocle => @floatToInt(
+                        u32,
+                        (@intToFloat(f64, ev.usable_width)) * output.width_ratio,
+                    ) - 2 * default_outer_padding,
                     .top, .bottom => ev.usable_height - 2 * default_outer_padding,
                 };
                 const usable_height = switch (output.main_location) {
                     .left, .right, .monocle => ev.usable_height - 2 * default_outer_padding,
-                    .top, .bottom => ev.usable_width - 2 * default_outer_padding,
+                    .top, .bottom => @floatToInt(
+                        u32,
+                        (@intToFloat(f64, ev.usable_width)) * output.width_ratio,
+                    ) - 2 * default_outer_padding,
                 };
 
                 // to make things pixel-perfect, we make the first main and first secondary
@@ -356,6 +380,7 @@ pub fn main() !void {
         .{ .name = "-main-location", .kind = .arg },
         .{ .name = "-main-count", .kind = .arg },
         .{ .name = "-main-ratio", .kind = .arg },
+        .{ .name = "-width-ratio", .kind = .arg },
         .{ .name = "-no-smart-gaps", .kind = .boolean },
     }) catch {
         try std.io.getStdErr().writeAll(usage);
@@ -390,6 +415,10 @@ pub fn main() !void {
     if (result.argFlag("-main-ratio")) |raw| {
         default_main_ratio = std.fmt.parseFloat(f64, raw) catch
             fatalPrintUsage("invalid value '{s}' provided to -main-ratio", .{raw});
+    }
+    if (result.argFlag("-width-ratio")) |raw| {
+        default_width_ratio = std.fmt.parseFloat(f64, raw) catch
+            fatalPrintUsage("invalid value '{s}' provided to -width-ratio", .{raw});
     }
     if (result.boolFlag("-no-smart-gaps")) {
         smart_gaps = false;
