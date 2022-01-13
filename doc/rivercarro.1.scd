@@ -19,8 +19,9 @@ help of *riverctl*(1).
 In addition to *rivertile*(1), *rivercarro* provides:
 
 - Monocle layout, views will takes all the usable area on the screen.
+- Gaps instead of padding around views or layout area. Change gaps size
+  at runtime.
 - Smart gaps, if there is only one view, gaps will be disable.
-- Inner gaps instead of padding around views.
 - Limit the width of the usable area of the screen.
 
 # OPTIONS
@@ -31,13 +32,16 @@ In addition to *rivertile*(1), *rivercarro* provides:
 *-version*
 	Print the version number and exit.
 
-*-view-padding* <pixels>
-	Set the padding around views in pixels.
+*-no-smart-gaps*
+	Disable smart gaps.
+
+*-inner-gaps* <pixels>
+	Set the initial gaps around views in pixels.
 
 	Default: 6
 
-*-outer-padding* <pixels>
-	Set the padding around the edge of the layout area in pixels.
+*-outer-gaps* <pixels>
+	Set the initial gaps around the edge of the layout area in pixels.
 
 	Default: 6
 
@@ -64,25 +68,22 @@ In addition to *rivertile*(1), *rivercarro* provides:
 
 	Default: 1.0
 
-*-no-smart-gaps*
-	Disable smart gaps.
-
 # COMMANDS
 
 These commands may be sent to rivercarro at runtime with the help of
 *riverctl*(1).
 
-*view-padding* <pixels>
-	Set the padding around views in pixels. If _value_ is prefixed by
+*inner-gaps* <pixels>
+	Set the gaps around views in pixels. If _value_ is prefixed by
 	a +/- sign, _value_ is added/subtracted from the current _value_. If
-	there is no sign, the view-padding is set to _value_.
+	there is no sign, inner-gaps is set to _value_.
 
 	Default: 6
 
-*outer-padding* <pixels>
-	Set the padding around the edge of the layout area in pixels. If
+*outer-gaps* <pixels>
+	Set the gaps around the edge of the layout area in pixels. If
 	_value_ is prefixed by a +/- sign, _value_ is added/subtracted from the
-	current _value_. If there is no sign, the outer-padding is set to _value_.
+	current _value_. If there is no sign, outer-gaps is set to _value_.
 
 	Default: 6
 
@@ -110,9 +111,9 @@ These commands may be sent to rivercarro at runtime with the help of
 
 # EXAMPLES
 
-Start *rivercarro* with 4 pixels outer padding and the *top* main location:
+Start *rivercarro* with outer gaps of 4 pixels and the *top* main location:
 
-	rivercarro -outer-padding 4 -main-location top
+	rivercarro -outer-gaps 4 -main-location top
 
 Increase the main ratio by 0.1 at runtime:
 

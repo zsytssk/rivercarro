@@ -5,16 +5,14 @@ A slightly modified version of _rivertile_ layout generator for
 
 Compared to _rivertile_, _rivercarro_ adds:
 
--   monocle layout
--   smart gaps
--   "true" inner gaps instead of padding around views
+-   Monocle layout, views will takes all the usable area on the screen.
+-   Gaps instead of padding around views or layout area. Change gaps size
+    at runtime.
+-   Smart gaps, if there is only one view, gaps will be disable.
 -   Limit the width of the usable area of the screen.
 
-I don't want to add too much complexity, the only thing I intend
-to add now is `smart borders`, after that I'll consider _rivercarro_
-features complete. If you want a layout generator with more features
-and configuration, have a look at some others great community
-contributions like [stacktile] or [kile].
+If you want a layout generator with more features and configuration, have
+a look at some others great community contributions like [stacktile] or [kile].
 
 ## Building
 
@@ -73,12 +71,13 @@ Usage: rivercarro [options]
 
   -h              Print this help message and exit.
   -version        Print the version number and exit.
-  -view-padding   Set the padding around views in pixels. (Default 6)
-  -outer-padding  Set the padding around the edge of the layout area in
-                  pixels. (Default 6)
+  -no-smart-gaps  Disable smart gaps
 
   The following commands may also be sent to rivercarro at runtime:
 
+  -inner-gaps     Set the gaps around views in pixels. (Default 6)
+  -outer-gaps     Set the gaps around the edge of the layout area in
+                  pixels. (Default 6)
   -main-location  Set the initial location of the main area in the
                   layout. (Default left)
   -main-count     Set the initial number of views in the main area of the
@@ -87,7 +86,8 @@ Usage: rivercarro [options]
                   area. (Default: 0.6)
   -width-ratio    Set the ratio of the usable area width of the screen.
                   (Default: 1.0)
-  -no-smart-gaps  Disable smart gaps
+
+  See rivercarro(1) man page for more documentation.
 ```
 
 ## Contributing
@@ -109,7 +109,7 @@ if you're not used to it, and my [wiki].
 Run `zig fmt` and wrap line at 100 columns unless it helps the
 readability.
 
-You can also found me on _IRC_ `irc.libera.chat` as `novakane`, mostly on
+You can also found me on IRC `irc.libera.chat` as `novakane`, mostly on
 `#river`.
 
 ## Thanks

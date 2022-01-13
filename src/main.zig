@@ -36,12 +36,12 @@ const usage =
     \\
     \\  -h              Print this help message and exit.
     \\  -version        Print the version number and exit.
+    \\  -no-smart-gaps  Disable smart gaps
     \\
-    \\  The following commands may also be sent to rivercarro at runtime
-    \\  with the help of riverctl(1):
+    \\  The following commands may also be sent to rivercarro at runtime:
     \\
-    \\  -view-padding   Set the padding around views in pixels. (Default 6)
-    \\  -outer-padding  Set the padding around the edge of the layout area in
+    \\  -inner-gaps     Set the gaps around views in pixels. (Default 6)
+    \\  -outer-gaps     Set the gaps around the edge of the layout area in
     \\                  pixels. (Default 6)
     \\  -main-location  Set the initial location of the main area in the
     \\                  layout. (Default left)
@@ -51,15 +51,14 @@ const usage =
     \\                  area. (Default: 0.6)
     \\  -width-ratio    Set the ratio of the usable area width of the screen.
     \\                  (Default: 1.0)
-    \\  -no-smart-gaps  Disable smart gaps
     \\
     \\  See rivercarro(1) man page for more documentation.
     \\
 ;
 
 const Command = enum {
-    @"view-padding",
-    @"outer-padding",
+    @"inner-gaps",
+    @"outer-gaps",
     @"main-location",
     @"main-count",
     @"main-ratio",
@@ -75,13 +74,13 @@ const Location = enum {
 };
 
 // Configured through command line options
-var default_view_padding: u32 = 6;
-var default_outer_padding: u32 = 6;
+var default_inner_gaps: u32 = 6;
+var default_outer_gaps: u32 = 6;
+var smart_gaps: bool = true;
 var default_main_location: Location = .left;
 var default_main_count: u32 = 1;
 var default_main_ratio: f64 = 0.6;
 var default_width_ratio: f64 = 1.0;
-var smart_gaps: bool = true;
 
 var only_one_view: bool = false;
 
@@ -112,8 +111,8 @@ const Output = struct {
     main_ratio: f64,
     width_ratio: f64,
 
-    view_padding: u32,
-    outer_padding: u32,
+    inner_gaps: u32,
+    outer_gaps: u32,
 
     layout: *river.LayoutV3 = undefined,
 
@@ -125,8 +124,8 @@ const Output = struct {
             .main_count = default_main_count,
             .main_ratio = default_main_ratio,
             .width_ratio = default_width_ratio,
-            .view_padding = default_view_padding,
-            .outer_padding = default_outer_padding,
+            .inner_gaps = default_inner_gaps,
+            .outer_gaps = default_outer_gaps,
         };
         if (context.initialized) try output.getLayout(context);
     }
@@ -165,32 +164,32 @@ const Output = struct {
                     return;
                 };
                 switch (cmd) {
-                    .@"view-padding" => {
+                    .@"inner-gaps" => {
                         const arg = std.fmt.parseInt(i32, raw_arg, 10) catch |err| {
                             log.err("failed to parse argument: {}", .{err});
                             return;
                         };
                         switch (raw_arg[0]) {
-                            '+' => output.view_padding = output.view_padding +| @intCast(u32, arg),
+                            '+' => output.inner_gaps = output.inner_gaps +| @intCast(u32, arg),
                             '-' => {
-                                const result = @as(i33, output.view_padding) + arg;
-                                if (result >= 0) output.view_padding = @intCast(u32, result);
+                                const result = @as(i33, output.inner_gaps) + arg;
+                                if (result >= 0) output.inner_gaps = @intCast(u32, result);
                             },
-                            else => output.view_padding = @intCast(u32, arg),
+                            else => output.inner_gaps = @intCast(u32, arg),
                         }
                     },
-                    .@"outer-padding" => {
+                    .@"outer-gaps" => {
                         const arg = std.fmt.parseInt(i32, raw_arg, 10) catch |err| {
                             log.err("failed to parse argument: {}", .{err});
                             return;
                         };
                         switch (raw_arg[0]) {
-                            '+' => output.outer_padding = output.outer_padding +| @intCast(u32, arg),
+                            '+' => output.outer_gaps = output.outer_gaps +| @intCast(u32, arg),
                             '-' => {
-                                const result = @as(i33, output.outer_padding) + arg;
-                                if (result >= 0) output.outer_padding = @intCast(u32, result);
+                                const result = @as(i33, output.outer_gaps) + arg;
+                                if (result >= 0) output.outer_gaps = @intCast(u32, result);
                             },
-                            else => output.outer_padding = @intCast(u32, arg),
+                            else => output.outer_gaps = @intCast(u32, arg),
                         }
                     },
                     .@"main-location" => {
@@ -254,26 +253,26 @@ const Output = struct {
 
                 // Don't add gaps if there is only one view
                 if (only_one_view and smart_gaps) {
-                    default_outer_padding = 0;
-                    default_view_padding = 0;
+                    default_outer_gaps = 0;
+                    default_inner_gaps = 0;
                 } else {
-                    default_outer_padding = output.outer_padding;
-                    default_view_padding = output.view_padding;
+                    default_outer_gaps = output.outer_gaps;
+                    default_inner_gaps = output.inner_gaps;
                 }
 
                 const usable_width = switch (output.main_location) {
                     .left, .right, .monocle => @floatToInt(
                         u32,
                         (@intToFloat(f64, ev.usable_width)) * output.width_ratio,
-                    ) - 2 * default_outer_padding,
-                    .top, .bottom => ev.usable_height - 2 * default_outer_padding,
+                    ) - 2 * default_outer_gaps,
+                    .top, .bottom => ev.usable_height - 2 * default_outer_gaps,
                 };
                 const usable_height = switch (output.main_location) {
-                    .left, .right, .monocle => ev.usable_height - 2 * default_outer_padding,
+                    .left, .right, .monocle => ev.usable_height - 2 * default_outer_gaps,
                     .top, .bottom => @floatToInt(
                         u32,
                         (@intToFloat(f64, ev.usable_width)) * output.width_ratio,
-                    ) - 2 * default_outer_padding,
+                    ) - 2 * default_outer_gaps,
                 };
 
                 // to make things pixel-perfect, we make the first main and first secondary
@@ -329,56 +328,56 @@ const Output = struct {
                         if (i < main_count) {
                             x = 0;
                             y = @intCast(i32, (i * main_height) +
-                                if (i > 0) default_view_padding else 0 +
+                                if (i > 0) default_inner_gaps else 0 +
                                 if (i > 0) main_height_rem else 0);
-                            width = main_width - default_view_padding / 2;
+                            width = main_width - default_inner_gaps / 2;
                             height = main_height -
-                                if (i > 0) default_view_padding else 0 +
+                                if (i > 0) default_inner_gaps else 0 +
                                 if (i == 0) main_height_rem else 0;
                         } else {
-                            x = @intCast(i32, (main_width - default_view_padding / 2) + default_view_padding);
+                            x = @intCast(i32, (main_width - default_inner_gaps / 2) + default_inner_gaps);
                             y = @intCast(i32, ((i - main_count) * secondary_height) +
-                                if (i > main_count) default_view_padding else 0 +
+                                if (i > main_count) default_inner_gaps else 0 +
                                 if (i > main_count) secondary_height_rem else 0);
-                            width = secondary_width - default_view_padding / 2;
+                            width = secondary_width - default_inner_gaps / 2;
                             height = secondary_height -
-                                if (i > main_count) default_view_padding else 0 +
+                                if (i > main_count) default_inner_gaps else 0 +
                                 if (i == main_count) secondary_height_rem else 0;
                         }
                     }
 
                     switch (output.main_location) {
                         .left => layout.pushViewDimensions(
-                            x + @intCast(i32, default_outer_padding),
-                            y + @intCast(i32, default_outer_padding),
+                            x + @intCast(i32, default_outer_gaps),
+                            y + @intCast(i32, default_outer_gaps),
                             width,
                             height,
                             ev.serial,
                         ),
                         .right => layout.pushViewDimensions(
-                            @intCast(i32, usable_width - width) - x + @intCast(i32, default_outer_padding),
-                            y + @intCast(i32, default_outer_padding),
+                            @intCast(i32, usable_width - width) - x + @intCast(i32, default_outer_gaps),
+                            y + @intCast(i32, default_outer_gaps),
                             width,
                             height,
                             ev.serial,
                         ),
                         .top => layout.pushViewDimensions(
-                            y + @intCast(i32, default_outer_padding),
-                            x + @intCast(i32, default_outer_padding),
+                            y + @intCast(i32, default_outer_gaps),
+                            x + @intCast(i32, default_outer_gaps),
                             height,
                             width,
                             ev.serial,
                         ),
                         .bottom => layout.pushViewDimensions(
-                            y + @intCast(i32, default_outer_padding),
-                            @intCast(i32, usable_width - width) - x + @intCast(i32, default_outer_padding),
+                            y + @intCast(i32, default_outer_gaps),
+                            @intCast(i32, usable_width - width) - x + @intCast(i32, default_outer_gaps),
                             height,
                             width,
                             ev.serial,
                         ),
                         .monocle => layout.pushViewDimensions(
-                            x + @intCast(i32, default_outer_padding),
-                            y + @intCast(i32, default_outer_padding),
+                            x + @intCast(i32, default_outer_gaps),
+                            y + @intCast(i32, default_outer_gaps),
                             width,
                             height,
                             ev.serial,
@@ -404,8 +403,8 @@ pub fn main() !void {
     const result = flags.parse(argv[1..], &[_]flags.Flag{
         .{ .name = "-h", .kind = .boolean },
         .{ .name = "-version", .kind = .boolean },
-        .{ .name = "-view-padding", .kind = .arg },
-        .{ .name = "-outer-padding", .kind = .arg },
+        .{ .name = "-inner-gaps", .kind = .arg },
+        .{ .name = "-outer-gaps", .kind = .arg },
         .{ .name = "-main-location", .kind = .arg },
         .{ .name = "-main-count", .kind = .arg },
         .{ .name = "-main-ratio", .kind = .arg },
@@ -425,13 +424,16 @@ pub fn main() !void {
         try std.io.getStdOut().writeAll(build_options.version ++ "\n");
         os.exit(0);
     }
-    if (result.argFlag("-view-padding")) |raw| {
-        default_view_padding = std.fmt.parseUnsigned(u32, raw, 10) catch
-            fatalPrintUsage("invalid value '{s}' provided to -view-padding", .{raw});
+    if (result.boolFlag("-no-smart-gaps")) {
+        smart_gaps = false;
     }
-    if (result.argFlag("-outer-padding")) |raw| {
-        default_outer_padding = std.fmt.parseUnsigned(u32, raw, 10) catch
-            fatalPrintUsage("invalid value '{s}' provided to -outer-padding", .{raw});
+    if (result.argFlag("-inner-gaps")) |raw| {
+        default_inner_gaps = std.fmt.parseUnsigned(u32, raw, 10) catch
+            fatalPrintUsage("invalid value '{s}' provided to -inner-gaps", .{raw});
+    }
+    if (result.argFlag("-outer-gaps")) |raw| {
+        default_outer_gaps = std.fmt.parseUnsigned(u32, raw, 10) catch
+            fatalPrintUsage("invalid value '{s}' provided to -outer-gaps", .{raw});
     }
     if (result.argFlag("-main-location")) |raw| {
         default_main_location = std.meta.stringToEnum(Location, raw) orelse
@@ -448,9 +450,6 @@ pub fn main() !void {
     if (result.argFlag("-width-ratio")) |raw| {
         default_width_ratio = std.fmt.parseFloat(f64, raw) catch
             fatalPrintUsage("invalid value '{s}' provided to -width-ratio", .{raw});
-    }
-    if (result.boolFlag("-no-smart-gaps")) {
-        smart_gaps = false;
     }
 
     const display = wl.Display.connect(null) catch {
