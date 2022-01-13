@@ -170,7 +170,7 @@ const Output = struct {
                             return;
                         };
                         switch (raw_arg[0]) {
-                            '+' => output.inner_gaps = output.inner_gaps +| @intCast(u32, arg),
+                            '+' => output.inner_gaps +|= @intCast(u32, arg),
                             '-' => {
                                 const result = @as(i33, output.inner_gaps) + arg;
                                 if (result >= 0) output.inner_gaps = @intCast(u32, result);
@@ -184,7 +184,7 @@ const Output = struct {
                             return;
                         };
                         switch (raw_arg[0]) {
-                            '+' => output.outer_gaps = output.outer_gaps +| @intCast(u32, arg),
+                            '+' => output.outer_gaps +|= @intCast(u32, arg),
                             '-' => {
                                 const result = @as(i33, output.outer_gaps) + arg;
                                 if (result >= 0) output.outer_gaps = @intCast(u32, result);
@@ -204,7 +204,7 @@ const Output = struct {
                             return;
                         };
                         switch (raw_arg[0]) {
-                            '+' => output.main_count = output.main_count +| @intCast(u32, arg),
+                            '+' => output.main_count +|= @intCast(u32, arg),
                             '-' => {
                                 const result = @as(i33, output.main_count) + arg;
                                 if (result >= 0) output.main_count = @intCast(u32, result);
