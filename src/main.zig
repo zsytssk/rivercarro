@@ -36,12 +36,13 @@ const usage =
     \\
     \\  -h              Print this help message and exit.
     \\  -version        Print the version number and exit.
+    \\
+    \\  The following commands may also be sent to rivercarro at runtime
+    \\  with the help of riverctl(1):
+    \\
     \\  -view-padding   Set the padding around views in pixels. (Default 6)
     \\  -outer-padding  Set the padding around the edge of the layout area in
     \\                  pixels. (Default 6)
-    \\
-    \\  The following commands may also be sent to rivercarro at runtime:
-    \\
     \\  -main-location  Set the initial location of the main area in the
     \\                  layout. (Default left)
     \\  -main-count     Set the initial number of views in the main area of the
@@ -52,9 +53,13 @@ const usage =
     \\                  (Default: 1.0)
     \\  -no-smart-gaps  Disable smart gaps
     \\
+    \\  See rivercarro(1) man page for more documentation.
+    \\
 ;
 
 const Command = enum {
+    @"view-padding",
+    @"outer-padding",
     @"main-location",
     @"main-count",
     @"main-ratio",
@@ -107,8 +112,8 @@ const Output = struct {
     main_ratio: f64,
     width_ratio: f64,
 
-    outer_padding: u32,
     view_padding: u32,
+    outer_padding: u32,
 
     layout: *river.LayoutV3 = undefined,
 
@@ -120,8 +125,8 @@ const Output = struct {
             .main_count = default_main_count,
             .main_ratio = default_main_ratio,
             .width_ratio = default_width_ratio,
-            .outer_padding = default_outer_padding,
             .view_padding = default_view_padding,
+            .outer_padding = default_outer_padding,
         };
         if (context.initialized) try output.getLayout(context);
     }
@@ -160,6 +165,34 @@ const Output = struct {
                     return;
                 };
                 switch (cmd) {
+                    .@"view-padding" => {
+                        const arg = std.fmt.parseInt(i32, raw_arg, 10) catch |err| {
+                            log.err("failed to parse argument: {}", .{err});
+                            return;
+                        };
+                        switch (raw_arg[0]) {
+                            '+' => output.view_padding = output.view_padding +| @intCast(u32, arg),
+                            '-' => {
+                                const result = @as(i33, output.view_padding) + arg;
+                                if (result >= 0) output.view_padding = @intCast(u32, result);
+                            },
+                            else => output.view_padding = @intCast(u32, arg),
+                        }
+                    },
+                    .@"outer-padding" => {
+                        const arg = std.fmt.parseInt(i32, raw_arg, 10) catch |err| {
+                            log.err("failed to parse argument: {}", .{err});
+                            return;
+                        };
+                        switch (raw_arg[0]) {
+                            '+' => output.outer_padding = output.outer_padding +| @intCast(u32, arg),
+                            '-' => {
+                                const result = @as(i33, output.outer_padding) + arg;
+                                if (result >= 0) output.outer_padding = @intCast(u32, result);
+                            },
+                            else => output.outer_padding = @intCast(u32, arg),
+                        }
+                    },
                     .@"main-location" => {
                         output.main_location = std.meta.stringToEnum(Location, raw_arg) orelse {
                             log.err("unknown location: {s}", .{raw_arg});
@@ -172,11 +205,7 @@ const Output = struct {
                             return;
                         };
                         switch (raw_arg[0]) {
-                            '+' => output.main_count = math.add(
-                                u32,
-                                output.main_count,
-                                @intCast(u32, arg),
-                            ) catch math.maxInt(u32),
+                            '+' => output.main_count = output.main_count +| @intCast(u32, arg),
                             '-' => {
                                 const result = @as(i33, output.main_count) + arg;
                                 if (result >= 0) output.main_count = @intCast(u32, result);

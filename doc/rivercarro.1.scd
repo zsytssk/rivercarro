@@ -72,6 +72,20 @@ In addition to *rivertile*(1), *rivercarro* provides:
 These commands may be sent to rivercarro at runtime with the help of
 *riverctl*(1).
 
+*view-padding* <pixels>
+	Set the padding around views in pixels. If _value_ is prefixed by
+	a +/- sign, _value_ is added/subtracted from the current _value_. If
+	there is no sign, the view-padding is set to _value_.
+
+	Default: 6
+
+*outer-padding* <pixels>
+	Set the padding around the edge of the layout area in pixels. If
+	_value_ is prefixed by a +/- sign, _value_ is added/subtracted from the
+	current _value_. If there is no sign, the outer-padding is set to _value_.
+
+	Default: 6
+
 *main-location* <top|bottom|left|right|monocle>
 	Set the location of the main area in the layout.
 
