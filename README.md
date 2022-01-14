@@ -6,8 +6,8 @@ A slightly modified version of _rivertile_ layout generator for
 Compared to _rivertile_, _rivercarro_ adds:
 
 -   Monocle layout, views will takes all the usable area on the screen.
--   Gaps instead of padding around views or layout area. Change gaps size
-    at runtime.
+-   Gaps instead of padding around views or layout area.
+-   Modify gaps size at runtime.
 -   Smart gaps, if there is only one view, gaps will be disable.
 -   Limit the width of the usable area of the screen.
 
@@ -36,7 +36,8 @@ set `PKG_CONFIG_PATH` in your shell rc, e.g.
 ## Usage
 
 Works exactly as _rivertile_, you can just replace _rivertile_ name by
-_rivercarro_ in your config, and read `rivercarro(1)` man page
+_rivercarro_ in your config, and read `rivercarro(1)` man page for commands
+specific to rivercarro.
 
 `e.g.` In your **river** init (usually `$XDG_CONFIG_HOME/river/init`)
 
@@ -57,6 +58,15 @@ riverctl map normal $mod Left  send-layout-cmd rivercarro "main-location left"
 # And for monocle
 riverctl map normal $mod M     send-layout-cmd rivercarro "main-location monocle"
 
+# Add others rivercarrro's commands the same way with the keybinds you'd like.
+# e.g.
+# riverctl map normal $mod <keys> send-layout-cmd rivercarro "inner-gaps -1"
+# riverctl map normal $mod <keys> send-layout-cmd rivercarro "inner-gaps +1"
+# riverctl map normal $mod <keys> send-layout-cmd rivercarro "outer-gaps -1"
+# riverctl map normal $mod <keys> send-layout-cmd rivercarro "outer-gaps +1"
+# riverctl map normal $mod <keys> send-layout-cmd rivercarro "width-ratio -0.1"
+# riverctl map normal $mod <keys> send-layout-cmd rivercarro "width-ratio +0.1"
+
 # Set and exec into the default layout generator, rivercarro.
 # River will send the process group of the init executable SIGTERM on exit.
 riverctl default-layout rivercarro
@@ -66,8 +76,8 @@ exec rivercarro
 ### Command line options
 
 ```
-$ rivercarro -help
-Usage: rivercarro [options]
+$ rivercarro -h
+Usage: rivercarro [options...]
 
   -h              Print this help message and exit.
   -version        Print the version number and exit.
@@ -114,13 +124,14 @@ You can also found me on IRC `irc.libera.chat` as `novakane`, mostly on
 
 ## Thanks
 
-Almost all credits go to [Isaac Freund] and [Leon Henrik Plickat]
+Thanks to [Isaac Freund] and [Leon Henrik Plickat] for river obviously, for
+rivertile, most of rivercarro code comes from them, and for always answering
+my many questions!
 
-**Thanks to them!**
 
 ## License
 
-[GNU General Public License v3.0 or later]
+rivercarro is licensed under the [GNU General Public License v3.0 or later]
 
 [river]: https://github.com/ifreund/river
 [stacktile]: https://sr.ht/~leon_plickat/stacktile/

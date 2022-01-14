@@ -19,8 +19,8 @@ help of *riverctl*(1).
 In addition to *rivertile*(1), *rivercarro* provides:
 
 - Monocle layout, views will takes all the usable area on the screen.
-- Gaps instead of padding around views or layout area. Change gaps size
-  at runtime.
+- Gaps instead of padding around views or layout area.
+- Modify gaps size at runtime.
 - Smart gaps, if there is only one view, gaps will be disable.
 - Limit the width of the usable area of the screen.
 
@@ -74,16 +74,16 @@ These commands may be sent to rivercarro at runtime with the help of
 *riverctl*(1).
 
 *inner-gaps* <pixels>
-	Set the gaps around views in pixels. If _value_ is prefixed by
-	a +/- sign, _value_ is added/subtracted from the current _value_. If
-	there is no sign, inner-gaps is set to _value_.
+	Set the gaps around views in pixels. If _pixels_ is prefixed by
+	a +/- sign, _pixels_ is added/subtracted from the current value. If
+	there is no sign, inner-gaps is set to _pixels_.
 
 	Default: 6
 
 *outer-gaps* <pixels>
 	Set the gaps around the edge of the layout area in pixels. If
-	_value_ is prefixed by a +/- sign, _value_ is added/subtracted from the
-	current _value_. If there is no sign, outer-gaps is set to _value_.
+	_pixels_ is prefixed by a +/- sign, _pixels_ is added/subtracted from the
+	current value. If there is no sign, outer-gaps is set to _pixels_.
 
 	Default: 6
 

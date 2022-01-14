@@ -19,6 +19,7 @@ const build_options = @import("build_options");
 
 const std = @import("std");
 const assert = std.debug.assert;
+const fmt = std.fmt;
 const mem = std.mem;
 const math = std.math;
 const os = std.os;
@@ -32,7 +33,7 @@ const flags = @import("flags.zig");
 const log = std.log.scoped(.rivercarro);
 
 const usage =
-    \\Usage: rivercarro [options]
+    \\Usage: rivercarro [options...]
     \\
     \\  -h              Print this help message and exit.
     \\  -version        Print the version number and exit.
@@ -73,7 +74,7 @@ const Location = enum {
     monocle,
 };
 
-// Configured through command line options
+// Configured through command line options.
 var default_inner_gaps: u32 = 6;
 var default_outer_gaps: u32 = 6;
 var smart_gaps: bool = true;
@@ -88,17 +89,18 @@ var only_one_view: bool = false;
 const gpa = std.heap.c_allocator;
 
 const Context = struct {
-    initialized: bool = false,
     layout_manager: ?*river.LayoutManagerV3 = null,
     outputs: std.TailQueue(Output) = .{},
 
-    fn addOutput(context: *Context, registry: *wl.Registry, name: u32) !void {
+    initialized: bool = false,
+
+    fn addOutput(ctx: *Context, registry: *wl.Registry, name: u32) !void {
         const wl_output = try registry.bind(name, wl.Output, 3);
         errdefer wl_output.release();
         const node = try gpa.create(std.TailQueue(Output).Node);
         errdefer gpa.destroy(node);
-        try node.data.init(context, wl_output, name);
-        context.outputs.append(node);
+        try node.data.init(ctx, wl_output, name);
+        ctx.outputs.append(node);
     }
 };
 
@@ -106,39 +108,38 @@ const Output = struct {
     wl_output: *wl.Output,
     name: u32,
 
+    inner_gaps: u32,
+    outer_gaps: u32,
     main_location: Location,
     main_count: u32,
     main_ratio: f64,
     width_ratio: f64,
 
-    inner_gaps: u32,
-    outer_gaps: u32,
-
     layout: *river.LayoutV3 = undefined,
 
-    fn init(output: *Output, context: *Context, wl_output: *wl.Output, name: u32) !void {
+    fn init(output: *Output, ctx: *Context, wl_output: *wl.Output, name: u32) !void {
         output.* = .{
             .wl_output = wl_output,
             .name = name,
+            .inner_gaps = default_inner_gaps,
+            .outer_gaps = default_outer_gaps,
             .main_location = default_main_location,
             .main_count = default_main_count,
             .main_ratio = default_main_ratio,
             .width_ratio = default_width_ratio,
-            .inner_gaps = default_inner_gaps,
-            .outer_gaps = default_outer_gaps,
         };
-        if (context.initialized) try output.getLayout(context);
-    }
-
-    fn getLayout(output: *Output, context: *Context) !void {
-        assert(context.initialized);
-        output.layout = try context.layout_manager.?.getLayout(output.wl_output, "rivercarro");
-        output.layout.setListener(*Output, layoutListener, output);
+        if (ctx.initialized) try output.getLayout(ctx);
     }
 
     fn deinit(output: *Output) void {
         output.wl_output.release();
         output.layout.destroy();
+    }
+
+    fn getLayout(output: *Output, ctx: *Context) !void {
+        assert(ctx.initialized);
+        output.layout = try ctx.layout_manager.?.getLayout(output.wl_output, "rivercarro");
+        output.layout.setListener(*Output, layoutListener, output);
     }
 
     fn layoutListener(layout: *river.LayoutV3, event: river.LayoutV3.Event, output: *Output) void {
@@ -148,25 +149,25 @@ const Output = struct {
             .user_command => |ev| {
                 var it = mem.tokenize(u8, mem.span(ev.command), " ");
                 const raw_cmd = it.next() orelse {
-                    log.err("not enough arguments", .{});
+                    log.err("Not enough arguments", .{});
                     return;
                 };
                 const raw_arg = it.next() orelse {
-                    log.err("not enough arguments", .{});
+                    log.err("Not enough arguments", .{});
                     return;
                 };
                 if (it.next() != null) {
-                    log.err("too many arguments", .{});
+                    log.err("Too many arguments", .{});
                     return;
                 }
                 const cmd = std.meta.stringToEnum(Command, raw_cmd) orelse {
-                    log.err("unknown command: {s}", .{raw_cmd});
+                    log.err("Unknown command: {s}", .{raw_cmd});
                     return;
                 };
                 switch (cmd) {
                     .@"inner-gaps" => {
-                        const arg = std.fmt.parseInt(i32, raw_arg, 10) catch |err| {
-                            log.err("failed to parse argument: {}", .{err});
+                        const arg = fmt.parseInt(i32, raw_arg, 10) catch |err| {
+                            log.err("Failed to parse argument: {}", .{err});
                             return;
                         };
                         switch (raw_arg[0]) {
@@ -179,8 +180,8 @@ const Output = struct {
                         }
                     },
                     .@"outer-gaps" => {
-                        const arg = std.fmt.parseInt(i32, raw_arg, 10) catch |err| {
-                            log.err("failed to parse argument: {}", .{err});
+                        const arg = fmt.parseInt(i32, raw_arg, 10) catch |err| {
+                            log.err("Failed to parse argument: {}", .{err});
                             return;
                         };
                         switch (raw_arg[0]) {
@@ -194,13 +195,13 @@ const Output = struct {
                     },
                     .@"main-location" => {
                         output.main_location = std.meta.stringToEnum(Location, raw_arg) orelse {
-                            log.err("unknown location: {s}", .{raw_arg});
+                            log.err("Unknown location: {s}", .{raw_arg});
                             return;
                         };
                     },
                     .@"main-count" => {
-                        const arg = std.fmt.parseInt(i32, raw_arg, 10) catch |err| {
-                            log.err("failed to parse argument: {}", .{err});
+                        const arg = fmt.parseInt(i32, raw_arg, 10) catch |err| {
+                            log.err("Failed to parse argument: {}", .{err});
                             return;
                         };
                         switch (raw_arg[0]) {
@@ -213,8 +214,8 @@ const Output = struct {
                         }
                     },
                     .@"main-ratio" => {
-                        const arg = std.fmt.parseFloat(f64, raw_arg) catch |err| {
-                            log.err("failed to parse argument: {}", .{err});
+                        const arg = fmt.parseFloat(f64, raw_arg) catch |err| {
+                            log.err("Failed to parse argument: {}", .{err});
                             return;
                         };
                         switch (raw_arg[0]) {
@@ -225,8 +226,8 @@ const Output = struct {
                         }
                     },
                     .@"width-ratio" => {
-                        const arg = std.fmt.parseFloat(f64, raw_arg) catch |err| {
-                            log.err("failed to parse argument: {}", .{err});
+                        const arg = fmt.parseFloat(f64, raw_arg) catch |err| {
+                            log.err("Failed to parse argument: {}", .{err});
                             return;
                         };
                         switch (raw_arg[0]) {
@@ -241,17 +242,17 @@ const Output = struct {
 
             .layout_demand => |ev| {
                 const main_count = math.clamp(output.main_count, 1, ev.view_count);
-                const secondary_count = if (ev.view_count > main_count)
-                    ev.view_count - main_count
-                else
-                    0;
+                const secondary_count = blk: {
+                    if (ev.view_count > main_count) break :blk ev.view_count - main_count;
+                    break :blk 0;
+                };
 
-                only_one_view = if (ev.view_count == 1 or output.main_location == .monocle)
-                    true
-                else
-                    false;
+                only_one_view = blk: {
+                    if (ev.view_count == 1 or output.main_location == .monocle) break :blk true;
+                    break :blk false;
+                };
 
-                // Don't add gaps if there is only one view
+                // Don't add gaps if there is only one view.
                 if (only_one_view and smart_gaps) {
                     default_outer_gaps = 0;
                     default_inner_gaps = 0;
@@ -263,7 +264,7 @@ const Output = struct {
                 const usable_width = switch (output.main_location) {
                     .left, .right, .monocle => @floatToInt(
                         u32,
-                        (@intToFloat(f64, ev.usable_width)) * output.width_ratio,
+                        @intToFloat(f64, ev.usable_width) * output.width_ratio,
                     ) - 2 * default_outer_gaps,
                     .top, .bottom => ev.usable_height - 2 * default_outer_gaps,
                 };
@@ -271,12 +272,12 @@ const Output = struct {
                     .left, .right, .monocle => ev.usable_height - 2 * default_outer_gaps,
                     .top, .bottom => @floatToInt(
                         u32,
-                        (@intToFloat(f64, ev.usable_width)) * output.width_ratio,
+                        @intToFloat(f64, ev.usable_width) * output.width_ratio,
                     ) - 2 * default_outer_gaps,
                 };
 
-                // to make things pixel-perfect, we make the first main and first secondary
-                // view slightly larger if the height is not evenly divisible
+                // To make things pixel-perfect, we make the first main and first secondary
+                // view slightly larger if the height is not evenly divisible.
                 var main_width: u32 = undefined;
                 var main_height: u32 = undefined;
                 var main_height_rem: u32 = undefined;
@@ -403,18 +404,18 @@ pub fn main() !void {
     const result = flags.parse(argv[1..], &[_]flags.Flag{
         .{ .name = "-h", .kind = .boolean },
         .{ .name = "-version", .kind = .boolean },
+        .{ .name = "-no-smart-gaps", .kind = .boolean },
         .{ .name = "-inner-gaps", .kind = .arg },
         .{ .name = "-outer-gaps", .kind = .arg },
         .{ .name = "-main-location", .kind = .arg },
         .{ .name = "-main-count", .kind = .arg },
         .{ .name = "-main-ratio", .kind = .arg },
         .{ .name = "-width-ratio", .kind = .arg },
-        .{ .name = "-no-smart-gaps", .kind = .boolean },
     }) catch {
         try std.io.getStdErr().writeAll(usage);
         os.exit(1);
     };
-    if (result.args.len != 0) fatalPrintUsage("unknown option '{s}'", .{result.args[0]});
+    if (result.args.len != 0) fatalPrintUsage("Unknown option '{s}'", .{result.args[0]});
 
     if (result.boolFlag("-h")) {
         try std.io.getStdOut().writeAll(usage);
@@ -428,28 +429,28 @@ pub fn main() !void {
         smart_gaps = false;
     }
     if (result.argFlag("-inner-gaps")) |raw| {
-        default_inner_gaps = std.fmt.parseUnsigned(u32, raw, 10) catch
-            fatalPrintUsage("invalid value '{s}' provided to -inner-gaps", .{raw});
+        default_inner_gaps = fmt.parseUnsigned(u32, raw, 10) catch
+            fatalPrintUsage("Invalid value '{s}' provided to -inner-gaps", .{raw});
     }
     if (result.argFlag("-outer-gaps")) |raw| {
-        default_outer_gaps = std.fmt.parseUnsigned(u32, raw, 10) catch
-            fatalPrintUsage("invalid value '{s}' provided to -outer-gaps", .{raw});
+        default_outer_gaps = fmt.parseUnsigned(u32, raw, 10) catch
+            fatalPrintUsage("Invalid value '{s}' provided to -outer-gaps", .{raw});
     }
     if (result.argFlag("-main-location")) |raw| {
         default_main_location = std.meta.stringToEnum(Location, raw) orelse
-            fatalPrintUsage("invalid value '{s}' provided to -main-location", .{raw});
+            fatalPrintUsage("Invalid value '{s}' provided to -main-location", .{raw});
     }
     if (result.argFlag("-main-count")) |raw| {
-        default_main_count = std.fmt.parseUnsigned(u32, raw, 10) catch
-            fatalPrintUsage("invalid value '{s}' provided to -main-count", .{raw});
+        default_main_count = fmt.parseUnsigned(u32, raw, 10) catch
+            fatalPrintUsage("Invalid value '{s}' provided to -main-count", .{raw});
     }
     if (result.argFlag("-main-ratio")) |raw| {
-        default_main_ratio = std.fmt.parseFloat(f64, raw) catch
-            fatalPrintUsage("invalid value '{s}' provided to -main-ratio", .{raw});
+        default_main_ratio = fmt.parseFloat(f64, raw) catch
+            fatalPrintUsage("Invalid value '{s}' provided to -main-ratio", .{raw});
     }
     if (result.argFlag("-width-ratio")) |raw| {
-        default_width_ratio = std.fmt.parseFloat(f64, raw) catch
-            fatalPrintUsage("invalid value '{s}' provided to -width-ratio", .{raw});
+        default_width_ratio = fmt.parseFloat(f64, raw) catch
+            fatalPrintUsage("Invalid value '{s}' provided to -width-ratio", .{raw});
     }
 
     const display = wl.Display.connect(null) catch {
@@ -458,43 +459,43 @@ pub fn main() !void {
     };
     defer display.disconnect();
 
-    var context: Context = .{};
+    var ctx: Context = .{};
 
     const registry = try display.getRegistry();
-    registry.setListener(*Context, registryListener, &context);
+    registry.setListener(*Context, registryListener, &ctx);
     _ = try display.roundtrip();
 
-    if (context.layout_manager == null) {
+    if (ctx.layout_manager == null) {
         fatal("Wayland compositor does not support river_layout_v3.\n", .{});
     }
 
-    context.initialized = true;
+    ctx.initialized = true;
 
-    var it = context.outputs.first;
+    var it = ctx.outputs.first;
     while (it) |node| : (it = node.next) {
         const output = &node.data;
-        try output.getLayout(&context);
+        try output.getLayout(&ctx);
     }
 
     while (true) _ = try display.dispatch();
 }
 
-fn registryListener(registry: *wl.Registry, event: wl.Registry.Event, context: *Context) void {
+fn registryListener(registry: *wl.Registry, event: wl.Registry.Event, ctx: *Context) void {
     switch (event) {
         .global => |global| {
             if (std.cstr.cmp(global.interface, river.LayoutManagerV3.getInterface().name) == 0) {
-                context.layout_manager = registry.bind(global.name, river.LayoutManagerV3, 1) catch return;
+                ctx.layout_manager = registry.bind(global.name, river.LayoutManagerV3, 1) catch return;
             } else if (std.cstr.cmp(global.interface, wl.Output.getInterface().name) == 0) {
-                context.addOutput(registry, global.name) catch |err|
-                    fatal("failed to bind output: {}", .{err});
+                ctx.addOutput(registry, global.name) catch |err|
+                    fatal("Failed to bind output: {}", .{err});
             }
         },
         .global_remove => |ev| {
-            var it = context.outputs.first;
+            var it = ctx.outputs.first;
             while (it) |node| : (it = node.next) {
                 const output = &node.data;
                 if (output.name == ev.name) {
-                    context.outputs.remove(node);
+                    ctx.outputs.remove(node);
                     output.deinit();
                     gpa.destroy(node);
                     break;
