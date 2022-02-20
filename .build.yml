@@ -19,10 +19,8 @@ packages:
   - wget
   - xz
 sources:
-  # Use mirrors for wayland/wlroots as fdo gitlab has some connectivity
-  # issue lastly.
-  - https://git.sr.ht/~novakane/wlroots
-  - https://git.sr.ht/~novakane/wayland
+  - https://gitlab.freedesktop.org/wayland/wayland.git
+  - https://gitlab.freedesktop.org/wlroots/wlroots.git
   - https://github.com/riverwm/river.git
   - https://git.sr.ht/~novakane/rivercarro
 tasks:
@@ -34,16 +32,16 @@ tasks:
       cd ..
 
       cd wlroots
-      git checkout 0.15.0
+      git checkout 0.15.1
       meson build --auto-features=enabled -Drenderers=gles2 -Dexamples=false \
             -Dwerror=false -Db_ndebug=false -Dxwayland=disabled --prefix /usr
       sudo ninja -C build/ install
       cd ..
 
-      wget https://ziglang.org/download/0.9.0/zig-linux-x86_64-0.9.0.tar.xz
-      tar -xvf zig-linux-x86_64-0.9.0.tar.xz 1>/dev/null
-      sudo mv zig-linux-x86_64-0.9.0/zig /usr/bin/
-      sudo mv zig-linux-x86_64-0.9.0/lib /usr/lib/zig
+      wget https://ziglang.org/download/0.9.1/zig-linux-x86_64-0.9.1.tar.xz
+      tar -xvf zig-linux-x86_64-0.9.1.tar.xz 1>/dev/null
+      sudo mv zig-linux-x86_64-0.9.1/zig /usr/bin/
+      sudo mv zig-linux-x86_64-0.9.1/lib /usr/lib/zig
 
       cd river
       sudo zig build --prefix /usr
