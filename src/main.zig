@@ -445,12 +445,20 @@ pub fn main() !void {
             fatalPrintUsage("Invalid value '{s}' provided to -main-count", .{raw});
     }
     if (result.argFlag("-main-ratio")) |raw| {
-        default_main_ratio = fmt.parseFloat(f64, raw) catch
+        default_main_ratio = fmt.parseFloat(f64, raw) catch {
             fatalPrintUsage("Invalid value '{s}' provided to -main-ratio", .{raw});
+        };
+        if (default_main_ratio < 0.1 or default_main_ratio > 0.9) {
+            fatalPrintUsage("Invalid value '{s}' provided to -main-ratio", .{raw});
+        }
     }
     if (result.argFlag("-width-ratio")) |raw| {
-        default_width_ratio = fmt.parseFloat(f64, raw) catch
+        default_width_ratio = fmt.parseFloat(f64, raw) catch {
             fatalPrintUsage("Invalid value '{s}' provided to -width-ratio", .{raw});
+        };
+        if (default_width_ratio < 0.1 or default_width_ratio > 1.0) {
+            fatalPrintUsage("Invalid value '{s}' provided to -width-ratio", .{raw});
+        }
     }
 
     const display = wl.Display.connect(null) catch {
