@@ -60,6 +60,7 @@ const usage =
 const Command = enum {
     @"inner-gaps",
     @"outer-gaps",
+    @"gaps",
     @"main-location",
     @"main-count",
     @"main-ratio",
@@ -191,6 +192,28 @@ const Output = struct {
                                 if (result >= 0) output.outer_gaps = @intCast(u31, result);
                             },
                             else => output.outer_gaps = @intCast(u31, arg),
+                        }
+                    },
+                    .@"gaps" => {
+                        const arg = fmt.parseInt(i32, raw_arg, 10) catch |err| {
+                            log.err("Failed to parse argument: {}", .{err});
+                            return;
+                        };
+                        switch (raw_arg[0]) {
+                            '+' => {
+                                output.inner_gaps +|= @intCast(u31, arg);
+                                output.outer_gaps +|= @intCast(u31, arg);
+                            },
+                            '-' => {
+                                const ogaps = @as(i33, output.outer_gaps) + arg;
+                                const igaps = @as(i33, output.inner_gaps) + arg;
+                                if (igaps >= 0) output.inner_gaps = @intCast(u31, igaps);
+                                if (ogaps >= 0) output.outer_gaps = @intCast(u31, igaps);
+                            },
+                            else => {
+                                output.inner_gaps = @intCast(u31, arg);
+                                output.outer_gaps = @intCast(u31, arg);
+                            },
                         }
                     },
                     .@"main-location" => {

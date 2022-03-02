@@ -87,6 +87,11 @@ These commands may be sent to rivercarro at runtime with the help of
 
 	Default: 6
 
+*gaps* <pixels>
+	Set the both inner and outer gaps in pixels. If _pixels_ is prefixed
+	by a +/- sign, _pixels_ is added/subtracted from the current value. If
+	there is no sign, [iner|outer]-gaps is set to _pixels_.
+
 *main-location* <top|bottom|left|right|monocle>
 	Set the location of the main area in the layout.
 
