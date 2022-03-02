@@ -208,7 +208,7 @@ const Output = struct {
                                 const ogaps = @as(i33, output.outer_gaps) + arg;
                                 const igaps = @as(i33, output.inner_gaps) + arg;
                                 if (igaps >= 0) output.inner_gaps = @intCast(u31, igaps);
-                                if (ogaps >= 0) output.outer_gaps = @intCast(u31, igaps);
+                                if (ogaps >= 0) output.outer_gaps = @intCast(u31, ogaps);
                             },
                             else => {
                                 output.inner_gaps = @intCast(u31, arg);
