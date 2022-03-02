@@ -75,11 +75,11 @@ const Location = enum {
 };
 
 // Configured through command line options.
-var default_inner_gaps: u32 = 6;
-var default_outer_gaps: u32 = 6;
+var default_inner_gaps: u31 = 6;
+var default_outer_gaps: u31 = 6;
 var smart_gaps: bool = true;
 var default_main_location: Location = .left;
-var default_main_count: u32 = 1;
+var default_main_count: u31 = 1;
 var default_main_ratio: f64 = 0.6;
 var default_width_ratio: f64 = 1.0;
 
@@ -108,10 +108,10 @@ const Output = struct {
     wl_output: *wl.Output,
     name: u32,
 
-    inner_gaps: u32,
-    outer_gaps: u32,
+    inner_gaps: u31,
+    outer_gaps: u31,
     main_location: Location,
-    main_count: u32,
+    main_count: u31,
     main_ratio: f64,
     width_ratio: f64,
 
@@ -171,12 +171,12 @@ const Output = struct {
                             return;
                         };
                         switch (raw_arg[0]) {
-                            '+' => output.inner_gaps +|= @intCast(u32, arg),
+                            '+' => output.inner_gaps +|= @intCast(u31, arg),
                             '-' => {
                                 const result = @as(i33, output.inner_gaps) + arg;
-                                if (result >= 0) output.inner_gaps = @intCast(u32, result);
+                                if (result >= 0) output.inner_gaps = @intCast(u31, result);
                             },
-                            else => output.inner_gaps = @intCast(u32, arg),
+                            else => output.inner_gaps = @intCast(u31, arg),
                         }
                     },
                     .@"outer-gaps" => {
@@ -185,12 +185,12 @@ const Output = struct {
                             return;
                         };
                         switch (raw_arg[0]) {
-                            '+' => output.outer_gaps +|= @intCast(u32, arg),
+                            '+' => output.outer_gaps +|= @intCast(u31, arg),
                             '-' => {
                                 const result = @as(i33, output.outer_gaps) + arg;
-                                if (result >= 0) output.outer_gaps = @intCast(u32, result);
+                                if (result >= 0) output.outer_gaps = @intCast(u31, result);
                             },
-                            else => output.outer_gaps = @intCast(u32, arg),
+                            else => output.outer_gaps = @intCast(u31, arg),
                         }
                     },
                     .@"main-location" => {
@@ -205,12 +205,12 @@ const Output = struct {
                             return;
                         };
                         switch (raw_arg[0]) {
-                            '+' => output.main_count +|= @intCast(u32, arg),
+                            '+' => output.main_count +|= @intCast(u31, arg),
                             '-' => {
                                 const result = @as(i33, output.main_count) + arg;
-                                if (result >= 0) output.main_count = @intCast(u32, result);
+                                if (result >= 0) output.main_count = @intCast(u31, result);
                             },
-                            else => output.main_count = @intCast(u32, arg),
+                            else => output.main_count = @intCast(u31, arg),
                         }
                     },
                     .@"main-ratio" => {
@@ -241,9 +241,11 @@ const Output = struct {
             },
 
             .layout_demand => |ev| {
-                const main_count = math.clamp(output.main_count, 1, ev.view_count);
-                const secondary_count = blk: {
-                    if (ev.view_count > main_count) break :blk ev.view_count - main_count;
+                const main_count: u31 = math.clamp(output.main_count, 1, @truncate(u31, ev.view_count));
+                const secondary_count: u31 = blk: {
+                    if (ev.view_count > main_count) {
+                        break :blk @truncate(u31, ev.view_count) - main_count;
+                    }
                     break :blk 0;
                 };
 
@@ -261,30 +263,31 @@ const Output = struct {
                     default_inner_gaps = output.inner_gaps;
                 }
 
-                const usable_width = switch (output.main_location) {
+                const usable_width: u31 = switch (output.main_location) {
                     .left, .right, .monocle => @floatToInt(
-                        u32,
+                        u31,
                         @intToFloat(f64, ev.usable_width) * output.width_ratio,
-                    ) - 2 * default_outer_gaps,
-                    .top, .bottom => ev.usable_height - 2 * default_outer_gaps,
+                    ) -| (2 *| default_outer_gaps),
+                    .top, .bottom => @truncate(u31, ev.usable_height) -| (2 *| default_outer_gaps),
                 };
-                const usable_height = switch (output.main_location) {
-                    .left, .right, .monocle => ev.usable_height - 2 * default_outer_gaps,
+                const usable_height: u31 = switch (output.main_location) {
+                    .left, .right, .monocle => @truncate(u31, ev.usable_height) -|
+                        (2 *| default_outer_gaps),
                     .top, .bottom => @floatToInt(
-                        u32,
+                        u31,
                         @intToFloat(f64, ev.usable_width) * output.width_ratio,
-                    ) - 2 * default_outer_gaps,
+                    ) -| (2 *| default_outer_gaps),
                 };
 
                 // To make things pixel-perfect, we make the first main and first secondary
                 // view slightly larger if the height is not evenly divisible.
-                var main_width: u32 = undefined;
-                var main_height: u32 = undefined;
-                var main_height_rem: u32 = undefined;
+                var main_width: u31 = undefined;
+                var main_height: u31 = undefined;
+                var main_height_rem: u31 = undefined;
 
-                var secondary_width: u32 = undefined;
-                var secondary_height: u32 = undefined;
-                var secondary_height_rem: u32 = undefined;
+                var secondary_width: u31 = undefined;
+                var secondary_height: u31 = undefined;
+                var secondary_height_rem: u31 = undefined;
 
                 if (output.main_location == .monocle) {
                     main_width = usable_width;
@@ -294,7 +297,7 @@ const Output = struct {
                     secondary_height = usable_height;
                 } else {
                     if (main_count > 0 and secondary_count > 0) {
-                        main_width = @floatToInt(u32, output.main_ratio * @intToFloat(f64, usable_width));
+                        main_width = @floatToInt(u31, output.main_ratio * @intToFloat(f64, usable_width));
                         main_height = usable_height / main_count;
                         main_height_rem = usable_height % main_count;
 
@@ -313,12 +316,12 @@ const Output = struct {
                     }
                 }
 
-                var i: u32 = 0;
+                var i: u31 = 0;
                 while (i < ev.view_count) : (i += 1) {
                     var x: i32 = undefined;
                     var y: i32 = undefined;
-                    var width: u32 = undefined;
-                    var height: u32 = undefined;
+                    var width: u31 = undefined;
+                    var height: u31 = undefined;
 
                     if (output.main_location == .monocle) {
                         x = 0;
@@ -328,18 +331,18 @@ const Output = struct {
                     } else {
                         if (i < main_count) {
                             x = 0;
-                            y = @intCast(i32, (i * main_height) +
+                            y = (i * main_height) +
                                 if (i > 0) default_inner_gaps else 0 +
-                                if (i > 0) main_height_rem else 0);
+                                if (i > 0) main_height_rem else 0;
                             width = main_width - default_inner_gaps / 2;
                             height = main_height -
                                 if (i > 0) default_inner_gaps else 0 +
                                 if (i == 0) main_height_rem else 0;
                         } else {
-                            x = @intCast(i32, (main_width - default_inner_gaps / 2) + default_inner_gaps);
-                            y = @intCast(i32, ((i - main_count) * secondary_height) +
+                            x = (main_width - default_inner_gaps / 2) + default_inner_gaps;
+                            y = ((i - main_count) * secondary_height) +
                                 if (i > main_count) default_inner_gaps else 0 +
-                                if (i > main_count) secondary_height_rem else 0);
+                                if (i > main_count) secondary_height_rem else 0;
                             width = secondary_width - default_inner_gaps / 2;
                             height = secondary_height -
                                 if (i > main_count) default_inner_gaps else 0 +
@@ -349,36 +352,36 @@ const Output = struct {
 
                     switch (output.main_location) {
                         .left => layout.pushViewDimensions(
-                            x + @intCast(i32, default_outer_gaps),
-                            y + @intCast(i32, default_outer_gaps),
+                            x +| default_outer_gaps,
+                            y +| default_outer_gaps,
                             width,
                             height,
                             ev.serial,
                         ),
                         .right => layout.pushViewDimensions(
-                            @intCast(i32, usable_width - width) - x + @intCast(i32, default_outer_gaps),
-                            y + @intCast(i32, default_outer_gaps),
+                            usable_width - width -| x +| default_outer_gaps,
+                            y +| default_outer_gaps,
                             width,
                             height,
                             ev.serial,
                         ),
                         .top => layout.pushViewDimensions(
-                            y + @intCast(i32, default_outer_gaps),
-                            x + @intCast(i32, default_outer_gaps),
+                            y +| default_outer_gaps,
+                            x +| default_outer_gaps,
                             height,
                             width,
                             ev.serial,
                         ),
                         .bottom => layout.pushViewDimensions(
-                            y + @intCast(i32, default_outer_gaps),
-                            @intCast(i32, usable_width - width) - x + @intCast(i32, default_outer_gaps),
+                            y +| default_outer_gaps,
+                            usable_width - width -| x +| default_outer_gaps,
                             height,
                             width,
                             ev.serial,
                         ),
                         .monocle => layout.pushViewDimensions(
-                            x + @intCast(i32, default_outer_gaps),
-                            y + @intCast(i32, default_outer_gaps),
+                            x +| default_outer_gaps,
+                            y +| default_outer_gaps,
                             width,
                             height,
                             ev.serial,
@@ -429,11 +432,11 @@ pub fn main() !void {
         smart_gaps = false;
     }
     if (result.argFlag("-inner-gaps")) |raw| {
-        default_inner_gaps = fmt.parseUnsigned(u32, raw, 10) catch
+        default_inner_gaps = fmt.parseUnsigned(u31, raw, 10) catch
             fatalPrintUsage("Invalid value '{s}' provided to -inner-gaps", .{raw});
     }
     if (result.argFlag("-outer-gaps")) |raw| {
-        default_outer_gaps = fmt.parseUnsigned(u32, raw, 10) catch
+        default_outer_gaps = fmt.parseUnsigned(u31, raw, 10) catch
             fatalPrintUsage("Invalid value '{s}' provided to -outer-gaps", .{raw});
     }
     if (result.argFlag("-main-location")) |raw| {
@@ -441,7 +444,7 @@ pub fn main() !void {
             fatalPrintUsage("Invalid value '{s}' provided to -main-location", .{raw});
     }
     if (result.argFlag("-main-count")) |raw| {
-        default_main_count = fmt.parseUnsigned(u32, raw, 10) catch
+        default_main_count = fmt.parseUnsigned(u31, raw, 10) catch
             fatalPrintUsage("Invalid value '{s}' provided to -main-count", .{raw});
     }
     if (result.argFlag("-main-ratio")) |raw| {
