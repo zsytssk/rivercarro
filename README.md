@@ -102,20 +102,7 @@ Usage: rivercarro [options...]
 
 ## Contributing
 
-For patches, questions or discussion send a [plain text] mail to my
-[public inbox] [~novakane/public-inbox@lists.sr.ht] with project
-prefix set to `rivercarro`:
-
-You can configure your repo like so:
-
-```bash
-git config sendemail.to "~novakane/public-inbox@lists.sr.ht"
-git config format.subjectPrefix "PATCH rivercarro"
-```
-
-See [here] for some great resource on how to use `git send-email`
-if you're not used to it. You can also have look at my [contributing guide]
-and [style guide] for zig.
+See [CONTRIBUTING.md]
 
 You can also found me on IRC `irc.libera.chat` as `novakane`, mostly on
 `#river`.
@@ -135,12 +122,7 @@ rivercarro is licensed under the [GNU General Public License v3.0 or later]
 [stacktile]: https://sr.ht/~leon_plickat/stacktile/
 [kile]: https://gitlab.com/snakedye/kile
 [zig]: https://ziglang.org/download/
-[plain text]: https://useplaintext.email/
-[public inbox]: https://lists.sr.ht/~novakane/public-inbox
-[~novakane/public-inbox@lists.sr.ht]: mailto:~novakane/public-inbox@lists.sr.ht
-[here]: https://git-send-email.io
-[contributing guide]: https://man.sr.ht/~novakane/guides/contributing.md
-[style guide]: https://man.sr.ht/~novakane/guides/lang/zig.md
+[contributing.md]: CONTRIBUTING.md
 [isaac freund]: https://github.com/ifreund
 [leon henrik plickat]: https://sr.ht/~leon_plickat/
 [gnu general public license v3.0 or later]: COPYING
