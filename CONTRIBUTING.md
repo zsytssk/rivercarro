@@ -3,16 +3,19 @@
 ## Commit messages
 
 Commit messages should start with a prefix indicating which part of the
-project is affected by your change, followed by a one sentence summary,
-first word is capitalized. First line is 50 columns long max.
+project is affected by your change, if this a general code patch you may not
+add it, followed by a one sentence summary, first word is capitalized. First
+line is 50 columns long max.
+
+If this is a breaking change, start the commit message with `!`.
 
 Example:
 
     seat: Add pointer events
 
-or
+    Update to zig 1.0.0
 
-    backend: Fix typo in error message
+    !commands: Rename whatever command
 
 You can add everything you feel need to be mentioned in the body of the
 commit message, wrap lines at 72 columns.
@@ -148,7 +151,6 @@ these things though:
     ```
 
 [here]: https://gitlab.freedesktop.org/wayland/weston/-/blob/master/CONTRIBUTING.md#formatting-and-separating-commits
-[gitpro book]: https://git-scm.com/book/en/v2/Distributed-Git-Contributing-to-a-Project
 [public inbox]: https://lists.sr.ht/~novakane/public-inbox
 [~novakane/public-inbox@lists.sr.ht]: mailto:~novakane/public-inbox@lists.sr.ht
 [git send-email]: https://git-send-email.io
