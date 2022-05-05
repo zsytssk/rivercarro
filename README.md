@@ -27,12 +27,6 @@ Build, `e.g.`
 
     zig build --prefix ~/.local
 
-Note that _rivercarro_ use pkgconfig for the `river-layout-v3`
-protocol so if you did not installed _river_ system wide you need to
-set `PKG_CONFIG_PATH` in your shell rc, e.g.
-
-    export PKG_CONFIG_PATH="$HOME/.local/share/pkgconfig"
-
 ## Usage
 
 Works exactly as _rivertile_, you can just replace _rivertile_ name by
@@ -113,10 +107,13 @@ Thanks to [Isaac Freund] and [Leon Henrik Plickat] for river obviously, for
 rivertile, most of rivercarro code comes from them, and for always answering
 my many questions!
 
-
 ## License
 
 rivercarro is licensed under the [GNU General Public License v3.0 or later]
+
+Files in `protocol/` directory are released under various licenses by
+various parties. You should refer to the copyright block of each files for
+the licensing information.
 
 [river]: https://github.com/ifreund/river
 [stacktile]: https://sr.ht/~leon_plickat/stacktile/

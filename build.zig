@@ -36,12 +36,7 @@ pub fn build(b: *Builder) !void {
     };
 
     const scanner = ScanProtocolsStep.create(b);
-
-    const protocol_path = mem.trim(u8, try b.exec(
-        &[_][]const u8{ "pkg-config", "--variable=pkgdatadir", "river-protocols" },
-    ), &std.ascii.spaces);
-    const layout_protocol = try std.fs.path.join(b.allocator, &[_][]const u8{ protocol_path, "river-layout-v3.xml" });
-    scanner.addProtocolPath(layout_protocol);
+    scanner.addProtocolPath("protocol/river-layout-v3.xml");
 
     const exe = b.addExecutable("rivercarro", "src/main.zig");
     exe.setTarget(target);
