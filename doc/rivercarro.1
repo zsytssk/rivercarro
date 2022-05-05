@@ -1,0 +1,230 @@
+.TH RIVERCARRO 1 2022-04-23 git.sr.ht/~novakane/rivercarro
+.
+.SH NAME
+.B rivercarro
+\- tiled layout generator for
+.BR river (1)
+.
+.SH SYNOPSIS
+.SY rivercarro
+.OP \-inner\-gaps
+.OP \-outer\-gaps
+.OP \-main\-location
+.OP \-main\-count
+.OP \-main\-ratio
+.OP \-width\-ratio
+.YS
+.
+.SY rivercarro
+.OP \-no\-smart\-gaps
+.YS
+.
+.SY rivercarro
+.OP \-h
+.OP \-version
+.YS
+.
+.SH DESCRIPTION
+.B rivercarro
+is a fork of
+.BR rivertile (1)
+layout generator for
+.BR river (1).
+.P
+It provides a simple tiled layout with split main/secondary stacks. The
+initial state may be configured with various options passed on startup. Some
+values may additionally be modified while rivercarro is running with the
+help of
+.BR riverctl (1).
+.P
+In addition to
+.BR rivertile (1),
+.B rivercarro
+provides:
+.P
+.EX
+\- Monocle layout, views will takes all the usable area on the screen.
+\- Gaps instead of padding around views or layout area.
+\- Modify gaps size at runtime.
+\- Smart gaps, if there is only one view, gaps will be disable.
+\- Limit the width of the usable area of the screen.
+.EE
+.
+.SH OPTIONS
+.TP
+.B \-h
+Print a help message and exit.
+.TP
+.B \-version
+Print the version number and exit.
+.TP
+.B \-no\-smart\-gaps
+Disable smart gaps.
+.TP
+.BI \-inner-gaps\  pixels
+Set the initial gaps around views in pixels.
+.P
+.RS
+Default: 6
+.P
+.RE
+.TP
+.BI \-outer\-gaps\  pixels
+Set the initial gaps around the edge of the layout area in pixels.
+.P
+.RS
+Default: 6
+.P
+.RE
+.TP
+.BI \-main\-location\  top|bottom|left|right|monocle
+Set the initial location of the main area in the layout.
+.P
+.RS
+Default: left
+.P
+.RE
+.TP
+.BI \-main\-count\  count
+Set the initial number of views in the main area of the layout.
+.P
+.RS
+Default: 1
+.P
+.RE
+.TP
+.BI \-main\-ratio\  ratio
+Set the initial ratio of the main area to total layout area. The
+.I ratio
+must be between 0.1 and 0.9, inclusive.
+.P
+.RS
+Default: 0.6
+.P
+.RE
+.TP
+.BI \-width\-ratio\  ratio
+Set the initial ratio of the width of the usable area of the screen. The
+.I ratio
+must be between 0.1 and 1.0, inclusive.
+.P
+.RS
+Default: 1.0
+.P
+.RE
+.
+.SH COMMANDS
+These commands may be sent to rivercarro at
+.B runtime
+with the help of
+.BR riverctl (1).
+.TP
+.BI inner\-gaps\  pixels
+Set the gaps around views in pixels. If
+.I pixels
+is prefixed by a +/- sign,
+.I pixels
+is added/subtracted from the current value. If there is no sign, inner-gaps
+is set to
+.IR pixels .
+.P
+.RS
+Default: 6
+.P
+.RE
+.TP
+.BI outer\-gaps\  pixels
+Set the gaps around the edge of the layout area in pixels. If
+.I pixels
+is prefixed by a +/- sign,
+.I pixels
+is added/subtracted from the current value. If there is no sign, outer-gaps
+is set to
+.IR pixels .
+.P
+.RS
+Default: 6
+.P
+.RE
+.TP
+.BI gaps\  pixels
+Set the both inner and outer gaps in pixels. If
+.I pixels
+is prefixed by a +/- sign,
+.I pixels
+is added/subtracted from the current value. If there is no sign,
+[iner|outer]-gaps is set to
+.IR pixels .
+.TP
+.BI main\-location\  top|bottom|left|right|monocle
+Set the location of the main area in the layout.
+.TP
+.BI main\-count\  value
+Set or modify the number of views in the main area of the layout. If
+.I value
+is prefixed by a +/- sign,
+.I value
+is added/subtracted from the current count. If there is no sign, the main
+count is set to
+.IR value .
+.TP
+.BI main\-ratio\  value
+Set or modify the ratio of the main area to total layout area. If
+.I value
+is prefixed by a +/- sign,
+.I value
+is added/subtracted from the current ratio. If there is no sign, the main
+ratio is set to
+.IR value .
+.P
+Note that the ratio will always be clamped to the range 0.1 to 0.9.
+.TP
+.BI width\-ratio\  value
+Set or modify the ratio of the the width of the usable area of the screen. If
+.I value
+is prefixed by a +/- sign,
+.I value
+is
+added/subtracted from the current ratio. If there is no sign, the width
+ratio is set to
+.IR value .
+.P
+Note that the ratio will always be clamped to the range 0.1 to 1.0.
+.
+.SH EXAMPLES
+.P
+Start
+.B rivercarro
+wwith outer gaps of 4 pixels and the top main location:
+.P
+.RS 4
+rivercarro \-outer\-gaps 4 \-main\-location top
+.P
+.RE
+Increase the main ratio by 0.1 at runtime:
+.P
+.RS 4
+riverctl send\-layout\-cmd rivercarro "main\-ratio +0.1"
+.P
+.RE
+Set the main count to 3 at runtime:
+.P
+.RS 4
+riverctl send\-layout\-cmd rivercarro "main\-count 3"
+.P
+.RE
+Set the width ratio at 70% at runtime:
+.P
+.RS 4
+riverctl send\-layout\-cmd rivercarro "width\-ratio 0.7"
+.P
+.RE
+.
+.SH SEE ALSO
+.P
+.al
+.nh
+.BR river (1),
+.BR riverctl (1),
+.BR rivertile (1)
+.
