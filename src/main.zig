@@ -28,7 +28,7 @@ const wayland = @import("wayland");
 const wl = wayland.client.wl;
 const river = wayland.client.river;
 
-const flags = @import("flags.zig");
+const flags = @import("flags");
 
 const log = std.log.scoped(.rivercarro);
 

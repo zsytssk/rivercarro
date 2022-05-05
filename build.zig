@@ -47,6 +47,9 @@ pub fn build(b: *Builder) !void {
     exe.addOptions("build_options", options);
 
     exe.step.dependOn(&scanner.step);
+
+    exe.addPackagePath("flags", "common/flags.zig");
+
     exe.addPackage(.{
         .name = "wayland",
         .path = .{ .generated = &scanner.result },

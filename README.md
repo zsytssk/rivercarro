@@ -111,9 +111,9 @@ my many questions!
 
 rivercarro is licensed under the [GNU General Public License v3.0 or later]
 
-Files in `protocol/` directory are released under various licenses by
-various parties. You should refer to the copyright block of each files for
-the licensing information.
+Files in `common/` and `protocol/` directories are released under various
+licenses by various parties. You should refer to the copyright block of each
+files for the licensing information.
 
 [river]: https://github.com/ifreund/river
 [stacktile]: https://sr.ht/~leon_plickat/stacktile/
