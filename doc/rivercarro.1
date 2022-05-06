@@ -1,4 +1,4 @@
-.TH RIVERCARRO 1 2022-04-23 git.sr.ht/~novakane/rivercarro
+.TH RIVERCARRO 1 2022-04-23 sr.ht/~novakane/rivercarro
 .
 .SH NAME
 .B rivercarro
@@ -43,11 +43,11 @@ In addition to
 provides:
 .P
 .EX
-\- Monocle layout, views will takes all the usable area on the screen.
-\- Gaps instead of padding around views or layout area.
-\- Modify gaps size at runtime.
-\- Smart gaps, if there is only one view, gaps will be disable.
-\- Limit the width of the usable area of the screen.
+\(bu Monocle layout, views will takes all the usable area on the screen.
+\(bu Gaps instead of padding around views or layout area.
+\(bu Modify gaps size at runtime.
+\(bu Smart gaps, if there is only one view, gaps will be disable.
+\(bu Limit the width of the usable area of the screen.
 .EE
 .
 .SH OPTIONS
@@ -63,55 +63,37 @@ Disable smart gaps.
 .TP
 .BI \-inner-gaps\  pixels
 Set the initial gaps around views in pixels.
-.P
-.RS
-Default: 6
-.P
-.RE
+.IP
+\(bu Default: 6
 .TP
 .BI \-outer\-gaps\  pixels
 Set the initial gaps around the edge of the layout area in pixels.
-.P
-.RS
-Default: 6
-.P
-.RE
+.IP
+\(bu Default: 6
 .TP
 .BI \-main\-location\  top|bottom|left|right|monocle
 Set the initial location of the main area in the layout.
-.P
-.RS
-Default: left
-.P
-.RE
+.IP
+\(bu Default: left
 .TP
 .BI \-main\-count\  count
 Set the initial number of views in the main area of the layout.
-.P
-.RS
-Default: 1
-.P
-.RE
+.IP
+\(bu Default: 1
 .TP
 .BI \-main\-ratio\  ratio
 Set the initial ratio of the main area to total layout area. The
 .I ratio
 must be between 0.1 and 0.9, inclusive.
-.P
-.RS
-Default: 0.6
-.P
-.RE
+.IP
+\(bu Default: 0.6
 .TP
 .BI \-width\-ratio\  ratio
 Set the initial ratio of the width of the usable area of the screen. The
 .I ratio
 must be between 0.1 and 1.0, inclusive.
-.P
-.RS
-Default: 1.0
-.P
-.RE
+.IP
+\(bu Default: 1.0
 .
 .SH COMMANDS
 These commands may be sent to rivercarro at
@@ -127,11 +109,8 @@ is prefixed by a +/- sign,
 is added/subtracted from the current value. If there is no sign, inner-gaps
 is set to
 .IR pixels .
-.P
-.RS
-Default: 6
-.P
-.RE
+.IP
+\(bu Default: 6
 .TP
 .BI outer\-gaps\  pixels
 Set the gaps around the edge of the layout area in pixels. If
@@ -141,11 +120,8 @@ is prefixed by a +/- sign,
 is added/subtracted from the current value. If there is no sign, outer-gaps
 is set to
 .IR pixels .
-.P
-.RS
-Default: 6
-.P
-.RE
+.IP
+\(bu Default: 6
 .TP
 .BI gaps\  pixels
 Set the both inner and outer gaps in pixels. If
@@ -176,7 +152,7 @@ is prefixed by a +/- sign,
 is added/subtracted from the current ratio. If there is no sign, the main
 ratio is set to
 .IR value .
-.P
+.IP
 Note that the ratio will always be clamped to the range 0.1 to 0.9.
 .TP
 .BI width\-ratio\  value
@@ -188,14 +164,14 @@ is
 added/subtracted from the current ratio. If there is no sign, the width
 ratio is set to
 .IR value .
-.P
+.IP
 Note that the ratio will always be clamped to the range 0.1 to 1.0.
 .
 .SH EXAMPLES
 .P
 Start
 .B rivercarro
-wwith outer gaps of 4 pixels and the top main location:
+with outer gaps of 4 pixels and the top main location:
 .P
 .RS 4
 rivercarro \-outer\-gaps 4 \-main\-location top
