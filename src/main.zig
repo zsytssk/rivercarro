@@ -227,6 +227,7 @@ const Output = struct {
                     },
                 }
             },
+            .user_command_tags => {},
 
             .layout_demand => |ev| {
                 const main_count: u31 = math.clamp(output.cfg.main_count, 1, @truncate(u31, ev.view_count));
@@ -510,9 +511,9 @@ fn registry_event(context: *Context, registry: *wl.Registry, event: wl.Registry.
     switch (event) {
         .global => |ev| {
             if (std.cstr.cmp(ev.interface, river.LayoutManagerV3.getInterface().name) == 0) {
-                context.layout_manager = try registry.bind(ev.name, river.LayoutManagerV3, 1);
+                context.layout_manager = try registry.bind(ev.name, river.LayoutManagerV3, 2);
             } else if (std.cstr.cmp(ev.interface, wl.Output.getInterface().name) == 0) {
-                const wl_output = try registry.bind(ev.name, wl.Output, 3);
+                const wl_output = try registry.bind(ev.name, wl.Output, 4);
                 errdefer wl_output.release();
 
                 const node = try gpa.create(std.SinglyLinkedList(Output).Node);
