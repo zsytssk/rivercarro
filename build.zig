@@ -60,9 +60,12 @@ pub fn build(b: *Builder) !void {
 
     exe.addPackagePath("flags", "common/flags.zig");
 
+    scanner.generate("wl_output", 4);
+    scanner.generate("river_layout_manager_v3", 2);
+
     exe.addPackage(.{
         .name = "wayland",
-        .path = .{ .generated = &scanner.result },
+        .source = .{ .generated = &scanner.result },
     });
     exe.linkLibC();
     exe.linkSystemLibrary("wayland-client");

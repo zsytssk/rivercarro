@@ -16,7 +16,7 @@ a look at some others great community contributions like [stacktile] or [kile].
 
 ## Building
 
-Same requirements as **[river]**, use [zig] 0.9, if **[river]** and
+Same requirements as **[river]**, use [zig] 0.10, if **[river]** and
 _rivertile_ works on your machine you shouldn't have any problems.
 
 Init submodules:

@@ -26,22 +26,22 @@ sources:
 tasks:
   - install_deps: |
       cd wayland
-      git checkout 1.20.0
-      meson build -Ddocumentation=false -Dtests=false --prefix /usr
+      git checkout 1.21.0
+      meson setup build -Ddocumentation=false -Dtests=false --prefix /usr
       sudo ninja -C build install
       cd ..
 
       cd wlroots
-      git checkout 0.15.1
-      meson build --auto-features=enabled -Drenderers=gles2 -Dexamples=false \
+      git checkout 0.16.1
+      meson setup build --auto-features=enabled -Drenderers=gles2 -Dexamples=false \
             -Dwerror=false -Db_ndebug=false -Dxwayland=disabled --prefix /usr
       sudo ninja -C build/ install
       cd ..
 
-      wget https://ziglang.org/download/0.9.1/zig-linux-x86_64-0.9.1.tar.xz
-      tar -xvf zig-linux-x86_64-0.9.1.tar.xz 1>/dev/null
-      sudo mv zig-linux-x86_64-0.9.1/zig /usr/bin/
-      sudo mv zig-linux-x86_64-0.9.1/lib /usr/lib/zig
+      wget https://ziglang.org/download/0.10.0/zig-linux-x86_64-0.10.0.tar.xz
+      tar -xvf zig-linux-x86_64-0.10.0.tar.xz 1>/dev/null
+      sudo mv zig-linux-x86_64-0.10.0/zig /usr/bin/
+      sudo mv zig-linux-x86_64-0.10.0/lib /usr/lib/zig
 
       cd river
       sudo zig build --prefix /usr
