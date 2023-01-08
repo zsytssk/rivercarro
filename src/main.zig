@@ -396,52 +396,50 @@ const Output = struct {
 };
 
 pub fn main() !void {
-    // https://github.com/ziglang/zig/issues/7807
-    const argv: [][*:0]const u8 = os.argv;
-    const res = flags.parse(argv[1..], &[_]flags.Flag{
-        .{ .name = "-h", .kind = .boolean },
-        .{ .name = "-version", .kind = .boolean },
-        .{ .name = "-no-smart-gaps", .kind = .boolean },
-        .{ .name = "-inner-gaps", .kind = .arg },
-        .{ .name = "-outer-gaps", .kind = .arg },
-        .{ .name = "-main-location", .kind = .arg },
-        .{ .name = "-main-count", .kind = .arg },
-        .{ .name = "-main-ratio", .kind = .arg },
-        .{ .name = "-width-ratio", .kind = .arg },
-    }) catch {
+    const res = flags.parser([*:0]const u8, &.{
+        .{ .name = "h", .kind = .boolean },
+        .{ .name = "version", .kind = .boolean },
+        .{ .name = "no-smart-gaps", .kind = .boolean },
+        .{ .name = "inner-gaps", .kind = .arg },
+        .{ .name = "outer-gaps", .kind = .arg },
+        .{ .name = "main-location", .kind = .arg },
+        .{ .name = "main-count", .kind = .arg },
+        .{ .name = "main-ratio", .kind = .arg },
+        .{ .name = "width-ratio", .kind = .arg },
+    }).parse(os.argv[1..]) catch {
         try std.io.getStdErr().writeAll(usage);
         os.exit(1);
     };
     if (res.args.len != 0) fatal_usage("Unknown option '{s}'", .{res.args[0]});
 
-    if (res.boolFlag("-h")) {
+    if (res.flags.h) {
         try io.getStdOut().writeAll(usage);
         os.exit(0);
     }
-    if (res.boolFlag("-version")) {
+    if (res.flags.version) {
         try io.getStdOut().writeAll(build_options.version ++ "\n");
         os.exit(0);
     }
-    if (res.boolFlag("-no-smart-gaps")) {
+    if (res.flags.@"no-smart-gaps") {
         cfg.smart_gaps = false;
     }
-    if (res.argFlag("-inner-gaps")) |raw| {
+    if (res.flags.@"inner-gaps") |raw| {
         cfg.inner_gaps = fmt.parseUnsigned(u31, raw, 10) catch
             fatal_usage("Invalid value '{s}' provided to -inner-gaps", .{raw});
     }
-    if (res.argFlag("-outer-gaps")) |raw| {
+    if (res.flags.@"outer-gaps") |raw| {
         cfg.outer_gaps = fmt.parseUnsigned(u31, raw, 10) catch
             fatal_usage("Invalid value '{s}' provided to -outer-gaps", .{raw});
     }
-    if (res.argFlag("-main-location")) |raw| {
+    if (res.flags.@"main-location") |raw| {
         cfg.main_location = std.meta.stringToEnum(Location, raw) orelse
             fatal_usage("Invalid value '{s}' provided to -main-location", .{raw});
     }
-    if (res.argFlag("-main-count")) |raw| {
+    if (res.flags.@"main-count") |raw| {
         cfg.main_count = fmt.parseUnsigned(u31, raw, 10) catch
             fatal_usage("Invalid value '{s}' provided to -main-count", .{raw});
     }
-    if (res.argFlag("-main-ratio")) |raw| {
+    if (res.flags.@"main-ratio") |raw| {
         cfg.main_ratio = fmt.parseFloat(f64, raw) catch {
             fatal_usage("Invalid value '{s}' provided to -main-ratio", .{raw});
         };
@@ -449,7 +447,7 @@ pub fn main() !void {
             fatal_usage("Invalid value '{s}' provided to -main-ratio", .{raw});
         }
     }
-    if (res.argFlag("-width-ratio")) |raw| {
+    if (res.flags.@"width-ratio") |raw| {
         cfg.width_ratio = fmt.parseFloat(f64, raw) catch {
             fatal_usage("Invalid value '{s}' provided to -width-ratio", .{raw});
         };
