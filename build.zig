@@ -12,7 +12,7 @@ const ScanProtocolsStep = @import("deps/zig-wayland/build.zig").ScanProtocolsSte
 /// tagged, the "-dev" suffix should be removed for the commit that gets tagged.
 /// Directly after the tagged commit, the version should be bumped and the "-dev"
 /// suffix added.
-const version = "0.1.5-dev";
+const version = "0.2.0";
 
 pub fn build(b: *Builder) !void {
     const target = b.standardTargetOptions(.{});
