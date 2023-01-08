@@ -18,6 +18,7 @@
 const build_options = @import("build_options");
 
 const std = @import("std");
+const assert = std.debug.assert;
 const fmt = std.fmt;
 const io = std.io;
 const mem = std.mem;
@@ -139,7 +140,7 @@ const Output = struct {
                         switch (raw_arg[0]) {
                             '+' => output.cfg.inner_gaps +|= @intCast(u31, arg),
                             '-' => {
-                                const res = @as(i33, output.cfg.inner_gaps) + arg;
+                                const res = output.cfg.inner_gaps +| arg;
                                 if (res >= 0) output.cfg.inner_gaps = @intCast(u31, res);
                             },
                             else => output.cfg.inner_gaps = @intCast(u31, arg),
@@ -153,7 +154,7 @@ const Output = struct {
                         switch (raw_arg[0]) {
                             '+' => output.cfg.outer_gaps +|= @intCast(u31, arg),
                             '-' => {
-                                const res = @as(i33, output.cfg.outer_gaps) + arg;
+                                const res = output.cfg.outer_gaps +| arg;
                                 if (res >= 0) output.cfg.outer_gaps = @intCast(u31, res);
                             },
                             else => output.cfg.outer_gaps = @intCast(u31, arg),
@@ -170,8 +171,8 @@ const Output = struct {
                                 output.cfg.outer_gaps +|= @intCast(u31, arg);
                             },
                             '-' => {
-                                const o = @as(i33, output.cfg.outer_gaps) + arg;
-                                const i = @as(i33, output.cfg.inner_gaps) + arg;
+                                const o = output.cfg.outer_gaps +| arg;
+                                const i = output.cfg.inner_gaps +| arg;
                                 if (i >= 0) output.cfg.inner_gaps = @intCast(u31, i);
                                 if (o >= 0) output.cfg.outer_gaps = @intCast(u31, o);
                             },
@@ -195,10 +196,12 @@ const Output = struct {
                         switch (raw_arg[0]) {
                             '+' => output.cfg.main_count +|= @intCast(u31, arg),
                             '-' => {
-                                const res = @as(i33, output.cfg.main_count) + arg;
-                                if (res >= 0) output.cfg.main_count = @intCast(u31, res);
+                                const res = output.cfg.main_count +| arg;
+                                if (res >= 1) output.cfg.main_count = @intCast(u31, res);
                             },
-                            else => output.cfg.main_count = @intCast(u31, arg),
+                            else => {
+                                if (arg >= 1) output.cfg.main_count = @intCast(u31, arg);
+                            },
                         }
                     },
                     .@"main-ratio" => {
@@ -230,13 +233,10 @@ const Output = struct {
             .user_command_tags => {},
 
             .layout_demand => |ev| {
-                const main_count: u31 = math.clamp(output.cfg.main_count, 1, @truncate(u31, ev.view_count));
-                const sec_count: u31 = blk: {
-                    if (ev.view_count > main_count) {
-                        break :blk @truncate(u31, ev.view_count) - main_count;
-                    }
-                    break :blk 0;
-                };
+                assert(ev.view_count > 0);
+
+                const main_count = math.min(output.cfg.main_count, @truncate(u31, ev.view_count));
+                const sec_count = @truncate(u31, ev.view_count) -| main_count;
 
                 const only_one_view = blk: {
                     if (ev.view_count == 1 or output.cfg.main_location == .monocle) break :blk true;
@@ -252,14 +252,14 @@ const Output = struct {
                     cfg.inner_gaps = output.cfg.inner_gaps;
                 }
 
-                const usable_w: u31 = switch (output.cfg.main_location) {
+                const usable_w = switch (output.cfg.main_location) {
                     .left, .right, .monocle => @floatToInt(
                         u31,
                         @intToFloat(f64, ev.usable_width) * output.cfg.width_ratio,
                     ) -| (2 *| cfg.outer_gaps),
                     .top, .bottom => @truncate(u31, ev.usable_height) -| (2 *| cfg.outer_gaps),
                 };
-                const usable_h: u31 = switch (output.cfg.main_location) {
+                const usable_h = switch (output.cfg.main_location) {
                     .left, .right, .monocle => @truncate(u31, ev.usable_height) -| (2 *| cfg.outer_gaps),
                     .top, .bottom => @floatToInt(
                         u31,
@@ -277,34 +277,26 @@ const Output = struct {
                 var sec_h: u31 = undefined;
                 var sec_h_rem: u31 = undefined;
 
-                switch (output.cfg.main_location) {
-                    .monocle => {
+                if (output.cfg.main_location == .monocle) {
+                    main_w = usable_w;
+                    main_h = usable_h;
+
+                    sec_w = usable_w;
+                    sec_h = usable_h;
+                } else {
+                    if (sec_count > 0) {
+                        main_w = @floatToInt(u31, output.cfg.main_ratio * @intToFloat(f64, usable_w));
+                        main_h = usable_h / main_count;
+                        main_h_rem = usable_h % main_count;
+
+                        sec_w = usable_w - main_w;
+                        sec_h = usable_h / sec_count;
+                        sec_h_rem = usable_h % sec_count;
+                    } else {
                         main_w = usable_w;
-                        main_h = usable_h;
-
-                        sec_w = usable_w;
-                        sec_h = usable_h;
-                    },
-                    else => {
-                        if (main_count > 0 and sec_count > 0) {
-                            main_w = @floatToInt(u31, output.cfg.main_ratio * @intToFloat(f64, usable_w));
-                            main_h = usable_h / main_count;
-                            main_h_rem = usable_h % main_count;
-
-                            sec_w = usable_w - main_w;
-                            sec_h = usable_h / sec_count;
-                            sec_h_rem = usable_h % sec_count;
-                        } else if (main_count > 0) {
-                            main_w = usable_w;
-                            main_h = usable_h / main_count;
-                            main_h_rem = usable_h % main_count;
-                        } else if (sec_w > 0) {
-                            main_w = 0;
-                            sec_w = usable_w;
-                            sec_h = usable_h / sec_count;
-                            sec_h_rem = usable_h % sec_count;
-                        }
-                    },
+                        main_h = usable_h / main_count;
+                        main_h_rem = usable_h % main_count;
+                    }
                 }
 
                 var i: u31 = 0;
@@ -314,34 +306,26 @@ const Output = struct {
                     var width: u31 = undefined;
                     var height: u31 = undefined;
 
-                    switch (output.cfg.main_location) {
-                        .monocle => {
+                    if (output.cfg.main_location == .monocle) {
+                        x = 0;
+                        y = 0;
+                        width = main_w;
+                        height = main_h;
+                    } else {
+                        if (i < main_count) {
                             x = 0;
-                            y = 0;
-                            width = main_w;
-                            height = main_h;
-                        },
-                        else => {
-                            if (i < main_count) {
-                                x = 0;
-                                y = (i * main_h) +
-                                    if (i > 0) cfg.inner_gaps else 0 +
-                                    if (i > 0) main_h_rem else 0;
-                                width = main_w - cfg.inner_gaps / 2;
-                                height = main_h -
-                                    if (i > 0) cfg.inner_gaps else 0 +
-                                    if (i == 0) main_h_rem else 0;
-                            } else {
-                                x = (main_w - cfg.inner_gaps / 2) + cfg.inner_gaps;
-                                y = ((i - main_count) * sec_h) +
-                                    if (i > main_count) cfg.inner_gaps else 0 +
-                                    if (i > main_count) sec_h_rem else 0;
-                                width = sec_w - cfg.inner_gaps / 2;
-                                height = sec_h -
-                                    if (i > main_count) cfg.inner_gaps else 0 +
-                                    if (i == main_count) sec_h_rem else 0;
-                            }
-                        },
+                            y = (i * main_h) + if (i > 0) cfg.inner_gaps + main_h_rem else 0;
+                            width = main_w - cfg.inner_gaps / 2;
+                            height = (main_h + if (i == 0) main_h_rem else 0) -
+                                if (i > 0) cfg.inner_gaps else 0;
+                        } else {
+                            x = (main_w - cfg.inner_gaps / 2) + cfg.inner_gaps;
+                            y = (i - main_count) * sec_h +
+                                if (i > main_count) cfg.inner_gaps + sec_h_rem else 0;
+                            width = sec_w - cfg.inner_gaps / 2;
+                            height = (sec_h + if (i == main_count) sec_h_rem else 0) -
+                                if (i > main_count) cfg.inner_gaps else 0;
+                        }
                     }
 
                     switch (output.cfg.main_location) {
@@ -466,11 +450,8 @@ pub fn main() !void {
     registry.setListener(*Context, registry_listener, &ctx);
 
     const errno = display.roundtrip();
-    switch (errno) {
-        .SUCCESS => {},
-        else => {
-            fatal("initial roundtrip failed: E{s}", .{@tagName(errno)});
-        },
+    if (errno != .SUCCESS) {
+        fatal("initial roundtrip failed: E{s}", .{@tagName(errno)});
     }
 
     if (ctx.layout_manager == null) {
@@ -486,11 +467,8 @@ pub fn main() !void {
 
     while (true) {
         const dispatch_errno = display.dispatch();
-        switch (dispatch_errno) {
-            .SUCCESS => {},
-            else => {
-                fatal("failed to dispatch wayland events, E:{s}", .{@tagName(dispatch_errno)});
-            },
+        if (dispatch_errno != .SUCCESS) {
+            fatal("failed to dispatch wayland events, E:{s}", .{@tagName(dispatch_errno)});
         }
     }
 }
@@ -524,7 +502,6 @@ fn registry_event(context: *Context, registry: *wl.Registry, event: wl.Registry.
                 };
 
                 if (ctx.initialized) try node.data.get_layout();
-
                 context.outputs.prepend(node);
             }
         },
@@ -534,9 +511,7 @@ fn registry_event(context: *Context, registry: *wl.Registry, event: wl.Registry.
                 if (node.data.name == ev.name) {
                     node.data.wl_output.release();
                     node.data.layout.destroy();
-
                     context.outputs.remove(node);
-
                     gpa.destroy(node);
                     break;
                 }
