@@ -315,7 +315,7 @@ const Output = struct {
                         if (i < main_count) {
                             x = 0;
                             y = (i * main_h) + if (i > 0) cfg.inner_gaps + main_h_rem else 0;
-                            width = main_w - cfg.inner_gaps / 2;
+                            width = if (sec_count > 0) main_w - cfg.inner_gaps / 2 else main_w;
                             height = (main_h + if (i == 0) main_h_rem else 0) -
                                 if (i > 0) cfg.inner_gaps else 0;
                         } else {
