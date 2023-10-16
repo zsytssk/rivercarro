@@ -62,7 +62,7 @@ const usage =
 const Command = enum {
     @"inner-gaps",
     @"outer-gaps",
-    @"gaps",
+    gaps,
     @"main-location",
     @"main-count",
     @"main-ratio",
@@ -138,12 +138,12 @@ const Output = struct {
                             return;
                         };
                         switch (raw_arg[0]) {
-                            '+' => output.cfg.inner_gaps +|= @intCast(u31, arg),
+                            '+' => output.cfg.inner_gaps +|= @intCast(arg),
                             '-' => {
                                 const res = output.cfg.inner_gaps +| arg;
-                                if (res >= 0) output.cfg.inner_gaps = @intCast(u31, res);
+                                if (res >= 0) output.cfg.inner_gaps = @intCast(res);
                             },
-                            else => output.cfg.inner_gaps = @intCast(u31, arg),
+                            else => output.cfg.inner_gaps = @intCast(arg),
                         }
                     },
                     .@"outer-gaps" => {
@@ -152,33 +152,33 @@ const Output = struct {
                             return;
                         };
                         switch (raw_arg[0]) {
-                            '+' => output.cfg.outer_gaps +|= @intCast(u31, arg),
+                            '+' => output.cfg.outer_gaps +|= @intCast(arg),
                             '-' => {
                                 const res = output.cfg.outer_gaps +| arg;
-                                if (res >= 0) output.cfg.outer_gaps = @intCast(u31, res);
+                                if (res >= 0) output.cfg.outer_gaps = @intCast(res);
                             },
-                            else => output.cfg.outer_gaps = @intCast(u31, arg),
+                            else => output.cfg.outer_gaps = @intCast(arg),
                         }
                     },
-                    .@"gaps" => {
+                    .gaps => {
                         const arg = fmt.parseInt(i32, raw_arg, 10) catch |err| {
                             log.err("failed to parse argument: {}", .{err});
                             return;
                         };
                         switch (raw_arg[0]) {
                             '+' => {
-                                output.cfg.inner_gaps +|= @intCast(u31, arg);
-                                output.cfg.outer_gaps +|= @intCast(u31, arg);
+                                output.cfg.inner_gaps +|= @intCast(arg);
+                                output.cfg.outer_gaps +|= @intCast(arg);
                             },
                             '-' => {
                                 const o = output.cfg.outer_gaps +| arg;
                                 const i = output.cfg.inner_gaps +| arg;
-                                if (i >= 0) output.cfg.inner_gaps = @intCast(u31, i);
-                                if (o >= 0) output.cfg.outer_gaps = @intCast(u31, o);
+                                if (i >= 0) output.cfg.inner_gaps = @intCast(i);
+                                if (o >= 0) output.cfg.outer_gaps = @intCast(o);
                             },
                             else => {
-                                output.cfg.inner_gaps = @intCast(u31, arg);
-                                output.cfg.outer_gaps = @intCast(u31, arg);
+                                output.cfg.inner_gaps = @intCast(arg);
+                                output.cfg.outer_gaps = @intCast(arg);
                             },
                         }
                     },
@@ -194,13 +194,13 @@ const Output = struct {
                             return;
                         };
                         switch (raw_arg[0]) {
-                            '+' => output.cfg.main_count +|= @intCast(u31, arg),
+                            '+' => output.cfg.main_count +|= @intCast(arg),
                             '-' => {
                                 const res = output.cfg.main_count +| arg;
-                                if (res >= 1) output.cfg.main_count = @intCast(u31, res);
+                                if (res >= 1) output.cfg.main_count = @intCast(res);
                             },
                             else => {
-                                if (arg >= 1) output.cfg.main_count = @intCast(u31, arg);
+                                if (arg >= 1) output.cfg.main_count = @intCast(arg);
                             },
                         }
                     },
@@ -235,13 +235,10 @@ const Output = struct {
             .layout_demand => |ev| {
                 assert(ev.view_count > 0);
 
-                const main_count = math.min(output.cfg.main_count, @truncate(u31, ev.view_count));
-                const sec_count = @truncate(u31, ev.view_count) -| main_count;
+                const main_count = @min(output.cfg.main_count, @as(u31, @truncate(ev.view_count)));
+                const sec_count = @as(u31, @truncate(ev.view_count)) -| main_count;
 
-                const only_one_view = blk: {
-                    if (ev.view_count == 1 or output.cfg.main_location == .monocle) break :blk true;
-                    break :blk false;
-                };
+                const only_one_view = ev.view_count == 1 or output.cfg.main_location == .monocle;
 
                 // Don't add gaps if there is only one view.
                 if (only_one_view and cfg.smart_gaps) {
@@ -253,17 +250,17 @@ const Output = struct {
                 }
 
                 const usable_w = switch (output.cfg.main_location) {
-                    .left, .right, .monocle => @floatToInt(
+                    .left, .right, .monocle => @as(
                         u31,
-                        @intToFloat(f64, ev.usable_width) * output.cfg.width_ratio,
+                        @intFromFloat(@as(f64, @floatFromInt(ev.usable_width)) * output.cfg.width_ratio),
                     ) -| (2 *| cfg.outer_gaps),
-                    .top, .bottom => @truncate(u31, ev.usable_height) -| (2 *| cfg.outer_gaps),
+                    .top, .bottom => @as(u31, @truncate(ev.usable_height)) -| (2 *| cfg.outer_gaps),
                 };
                 const usable_h = switch (output.cfg.main_location) {
-                    .left, .right, .monocle => @truncate(u31, ev.usable_height) -| (2 *| cfg.outer_gaps),
-                    .top, .bottom => @floatToInt(
+                    .left, .right, .monocle => @as(u31, @truncate(ev.usable_height)) -| (2 *| cfg.outer_gaps),
+                    .top, .bottom => @as(
                         u31,
-                        @intToFloat(f64, ev.usable_width) * output.cfg.width_ratio,
+                        @intFromFloat(@as(f64, @floatFromInt(ev.usable_width)) * output.cfg.width_ratio),
                     ) -| (2 *| cfg.outer_gaps),
                 };
 
@@ -285,7 +282,7 @@ const Output = struct {
                     sec_h = usable_h;
                 } else {
                     if (sec_count > 0) {
-                        main_w = @floatToInt(u31, output.cfg.main_ratio * @intToFloat(f64, usable_w));
+                        main_w = @as(u31, @intFromFloat(output.cfg.main_ratio * @as(f64, @floatFromInt(usable_w))));
                         main_h = usable_h / main_count;
                         main_h_rem = usable_h % main_count;
 
@@ -486,9 +483,9 @@ fn registry_listener(registry: *wl.Registry, event: wl.Registry.Event, context: 
 fn registry_event(context: *Context, registry: *wl.Registry, event: wl.Registry.Event) !void {
     switch (event) {
         .global => |ev| {
-            if (std.cstr.cmp(ev.interface, river.LayoutManagerV3.getInterface().name) == 0) {
+            if (mem.orderZ(u8, ev.interface, river.LayoutManagerV3.getInterface().name) == .eq) {
                 context.layout_manager = try registry.bind(ev.name, river.LayoutManagerV3, 2);
-            } else if (std.cstr.cmp(ev.interface, wl.Output.getInterface().name) == 0) {
+            } else if (mem.orderZ(u8, ev.interface, wl.Output.getInterface().name) == .eq) {
                 const wl_output = try registry.bind(ev.name, wl.Output, 4);
                 errdefer wl_output.release();
 

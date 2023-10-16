@@ -5,7 +5,7 @@ const assert = std.debug.assert;
 const fs = std.fs;
 const mem = std.mem;
 
-const ScanProtocolsStep = @import("deps/zig-wayland/build.zig").ScanProtocolsStep;
+const Scanner = @import("deps/zig-wayland/build.zig").Scanner;
 
 /// While a rivercarro release is in development, this string should contain
 /// the version in development with the "-dev" suffix.  When a release is
@@ -16,19 +16,19 @@ const version = "0.3.0-dev";
 
 pub fn build(b: *Builder) !void {
     const target = b.standardTargetOptions(.{});
-    const mode = b.standardReleaseOptions();
+    const optimize = b.standardOptimizeOption(.{});
 
     const full_version = blk: {
         if (mem.endsWith(u8, version, "-dev")) {
             var ret: u8 = undefined;
 
             const git_describe_long = b.execAllowFail(
-                &[_][]const u8{ "git", "-C", b.build_root, "describe", "--long" },
+                &[_][]const u8{ "git", "-C", b.build_root.path orelse ".", "describe", "--long" },
                 &ret,
                 .Inherit,
             ) catch break :blk version;
 
-            var it = mem.split(u8, mem.trim(u8, git_describe_long, &std.ascii.spaces), "-");
+            var it = mem.split(u8, mem.trim(u8, git_describe_long, &std.ascii.whitespace), "-");
             _ = it.next().?; // previous tag
             const commit_count = it.next().?;
             const commit_hash = it.next().?;
@@ -45,42 +45,35 @@ pub fn build(b: *Builder) !void {
         }
     };
 
-    const scanner = ScanProtocolsStep.create(b);
-    scanner.addProtocolPath("protocol/river-layout-v3.xml");
+    const scanner = Scanner.create(b, .{});
 
-    const exe = b.addExecutable("rivercarro", "src/main.zig");
-    exe.setTarget(target);
-    exe.setBuildMode(mode);
+    const wayland = b.createModule(.{ .source_file = scanner.result });
+    const flags = b.createModule(.{ .source_file = .{ .path = "common/flags.zig" } });
+
+    scanner.addCustomProtocol("protocol/river-layout-v3.xml");
+
+    scanner.generate("wl_output", 4);
+    scanner.generate("river_layout_manager_v3", 2);
+
+    const exe = b.addExecutable(.{
+        .name = "rivercarro",
+        .root_source_file = .{ .path = "src/main.zig" },
+        .target = target,
+        .optimize = optimize,
+    });
+
+    exe.addModule("wayland", wayland);
+    exe.addModule("flags", flags);
 
     const options = b.addOptions();
     options.addOption([]const u8, "version", full_version);
     exe.addOptions("build_options", options);
 
-    exe.step.dependOn(&scanner.step);
-
-    exe.addPackagePath("flags", "common/flags.zig");
-
-    scanner.generate("wl_output", 4);
-    scanner.generate("river_layout_manager_v3", 2);
-
-    exe.addPackage(.{
-        .name = "wayland",
-        .source = .{ .generated = &scanner.result },
-    });
     exe.linkLibC();
     exe.linkSystemLibrary("wayland-client");
 
     scanner.addCSource(exe);
 
-    exe.install();
+    b.installArtifact(exe);
     b.installFile("doc/rivercarro.1", "share/man/man1/rivercarro.1");
-
-    const run_cmd = exe.run();
-    run_cmd.step.dependOn(b.getInstallStep());
-    if (b.args) |args| {
-        run_cmd.addArgs(args);
-    }
-
-    const run_step = b.step("run", "Run the app");
-    run_step.dependOn(&run_cmd.step);
 }
