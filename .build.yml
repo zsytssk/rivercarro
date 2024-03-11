@@ -6,6 +6,8 @@ packages:
   - mesa-dev
   - libffi-dev
   - expat-dev
+  - hwdata-dev
+  - libdisplay-info-dev
   - libxkbcommon-dev
   - xcb-util-image-dev
   - xcb-util-renderutil-dev
@@ -33,13 +35,14 @@ tasks:
       cd ..
 
       cd wlroots
-      git checkout 0.16.2
+      git checkout 0.17.1
       meson setup build --auto-features=enabled -Drenderers=gles2 -Dexamples=false \
-            -Dwerror=false -Db_ndebug=false -Dxwayland=disabled --prefix /usr
+            -Dwerror=false -Db_ndebug=false -Dxwayland=disabled -Dxcb-errors=disabled --prefix /usr
       sudo ninja -C build/ install
       cd ..
 
-      wget https://ziglang.org/download/0.11.0/zig-linux-x86_64-0.10.0.tar.xz
+      wget -nv https://ziglang.org/download/0.11.0/zig-linux-x86_64-0.11.0.tar.xz
+      # Remove a lot of useless lines from tar output.
       tar -xvf zig-linux-x86_64-0.11.0.tar.xz 1>/dev/null
       sudo mv zig-linux-x86_64-0.11.0/zig /usr/bin/
       sudo mv zig-linux-x86_64-0.11.0/lib /usr/lib/zig
@@ -52,3 +55,4 @@ tasks:
   - format: |
       cd rivercarro
       zig fmt --check src/
+      zig fmt --check build.zig
