@@ -64,6 +64,7 @@ const Command = enum {
     @"outer-gaps",
     gaps,
     @"main-location",
+    @"main-location-cycle",
     @"main-count",
     @"main-ratio",
     @"width-ratio",
@@ -187,6 +188,26 @@ const Output = struct {
                             log.err("unknown location: {s}", .{raw_arg});
                             return;
                         };
+                    },
+                    .@"main-location-cycle" => {
+                        var loc_it = mem.splitSequence(u8, raw_arg, ",");
+                        // select the first one, then the one after the current
+                        var picked: ?Location = null;
+                        var pick_next: bool = false;
+                        while (loc_it.next()) |loc| {
+                            const current = std.meta.stringToEnum(Location, loc) orelse {
+                                log.err("unknown location: {s}", .{loc});
+                                return;
+                            };
+                            if (picked == null or pick_next) {
+                                picked = current;
+                                if (pick_next) break;
+                            }
+                            if (current == output.cfg.main_location) {
+                                pick_next = true;
+                            }
+                        }
+                        output.cfg.main_location = picked.?;
                     },
                     .@"main-count" => {
                         const arg = fmt.parseInt(i32, raw_arg, 10) catch |err| {
