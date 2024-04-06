@@ -40,6 +40,7 @@ const usage =
     \\  -h              Print this help message and exit.
     \\  -version        Print the version number and exit.
     \\  -no-smart-gaps  Disable smart gaps
+    \\  -per-tag        Remember configuration per tag
     \\
     \\  The following commands may also be sent to rivercarro at runtime:
     \\
@@ -86,6 +87,7 @@ const Config = struct {
     main_count: u31 = 1,
     main_ratio: f64 = 0.6,
     width_ratio: f64 = 1.0,
+    per_tag: bool = false,
 };
 
 const Context = struct {
@@ -101,9 +103,23 @@ const Output = struct {
     wl_output: *wl.Output,
     name: u32,
 
-    cfg: Config,
+    cfgs: std.AutoHashMapUnmanaged(u32, Config) = .{},
+    user_command_tags: u32 = 0,
 
     layout: *river.LayoutV3 = undefined,
+
+    fn get_cfg(output: *Output, tags: u32) *Config {
+        const default_cfg = output.cfgs.getPtr(0) orelse unreachable;
+        if (!cfg.per_tag) return default_cfg;
+
+        // default to global config
+        const entry = output.cfgs.getOrPutValue(gpa, tags, default_cfg.*) catch {
+            // 0 always has a value
+            log.err("out of memory, reverting to default cfg", .{});
+            return default_cfg;
+        };
+        return entry.value_ptr;
+    }
 
     fn get_layout(output: *Output) !void {
         output.layout = try ctx.layout_manager.?.getLayout(output.wl_output, "rivercarro");
@@ -116,6 +132,7 @@ const Output = struct {
 
             .user_command => |ev| {
                 var it = mem.tokenize(u8, mem.span(ev.command), " ");
+                const active_cfg = output.get_cfg(output.user_command_tags);
                 const raw_cmd = it.next() orelse {
                     log.err("not enough arguments", .{});
                     return;
@@ -139,12 +156,12 @@ const Output = struct {
                             return;
                         };
                         switch (raw_arg[0]) {
-                            '+' => output.cfg.inner_gaps +|= @intCast(arg),
+                            '+' => active_cfg.inner_gaps +|= @intCast(arg),
                             '-' => {
-                                const res = output.cfg.inner_gaps +| arg;
-                                if (res >= 0) output.cfg.inner_gaps = @intCast(res);
+                                const res = active_cfg.inner_gaps +| arg;
+                                if (res >= 0) active_cfg.inner_gaps = @intCast(res);
                             },
-                            else => output.cfg.inner_gaps = @intCast(arg),
+                            else => active_cfg.inner_gaps = @intCast(arg),
                         }
                     },
                     .@"outer-gaps" => {
@@ -153,12 +170,12 @@ const Output = struct {
                             return;
                         };
                         switch (raw_arg[0]) {
-                            '+' => output.cfg.outer_gaps +|= @intCast(arg),
+                            '+' => active_cfg.outer_gaps +|= @intCast(arg),
                             '-' => {
-                                const res = output.cfg.outer_gaps +| arg;
-                                if (res >= 0) output.cfg.outer_gaps = @intCast(res);
+                                const res = active_cfg.outer_gaps +| arg;
+                                if (res >= 0) active_cfg.outer_gaps = @intCast(res);
                             },
-                            else => output.cfg.outer_gaps = @intCast(arg),
+                            else => active_cfg.outer_gaps = @intCast(arg),
                         }
                     },
                     .gaps => {
@@ -168,23 +185,23 @@ const Output = struct {
                         };
                         switch (raw_arg[0]) {
                             '+' => {
-                                output.cfg.inner_gaps +|= @intCast(arg);
-                                output.cfg.outer_gaps +|= @intCast(arg);
+                                active_cfg.inner_gaps +|= @intCast(arg);
+                                active_cfg.outer_gaps +|= @intCast(arg);
                             },
                             '-' => {
-                                const o = output.cfg.outer_gaps +| arg;
-                                const i = output.cfg.inner_gaps +| arg;
-                                if (i >= 0) output.cfg.inner_gaps = @intCast(i);
-                                if (o >= 0) output.cfg.outer_gaps = @intCast(o);
+                                const o = active_cfg.outer_gaps +| arg;
+                                const i = active_cfg.inner_gaps +| arg;
+                                if (i >= 0) active_cfg.inner_gaps = @intCast(i);
+                                if (o >= 0) active_cfg.outer_gaps = @intCast(o);
                             },
                             else => {
-                                output.cfg.inner_gaps = @intCast(arg);
-                                output.cfg.outer_gaps = @intCast(arg);
+                                active_cfg.inner_gaps = @intCast(arg);
+                                active_cfg.outer_gaps = @intCast(arg);
                             },
                         }
                     },
                     .@"main-location" => {
-                        output.cfg.main_location = std.meta.stringToEnum(Location, raw_arg) orelse {
+                        active_cfg.main_location = std.meta.stringToEnum(Location, raw_arg) orelse {
                             log.err("unknown location: {s}", .{raw_arg});
                             return;
                         };
@@ -203,11 +220,11 @@ const Output = struct {
                                 picked = current;
                                 if (pick_next) break;
                             }
-                            if (current == output.cfg.main_location) {
+                            if (current == active_cfg.main_location) {
                                 pick_next = true;
                             }
                         }
-                        output.cfg.main_location = picked.?;
+                        active_cfg.main_location = picked.?;
                     },
                     .@"main-count" => {
                         const arg = fmt.parseInt(i32, raw_arg, 10) catch |err| {
@@ -215,13 +232,13 @@ const Output = struct {
                             return;
                         };
                         switch (raw_arg[0]) {
-                            '+' => output.cfg.main_count +|= @intCast(arg),
+                            '+' => active_cfg.main_count +|= @intCast(arg),
                             '-' => {
-                                const res = output.cfg.main_count +| arg;
-                                if (res >= 1) output.cfg.main_count = @intCast(res);
+                                const res = active_cfg.main_count +| arg;
+                                if (res >= 1) active_cfg.main_count = @intCast(res);
                             },
                             else => {
-                                if (arg >= 1) output.cfg.main_count = @intCast(arg);
+                                if (arg >= 1) active_cfg.main_count = @intCast(arg);
                             },
                         }
                     },
@@ -232,9 +249,9 @@ const Output = struct {
                         };
                         switch (raw_arg[0]) {
                             '+', '-' => {
-                                output.cfg.main_ratio = math.clamp(output.cfg.main_ratio + arg, 0.1, 0.9);
+                                active_cfg.main_ratio = math.clamp(active_cfg.main_ratio + arg, 0.1, 0.9);
                             },
-                            else => output.cfg.main_ratio = math.clamp(arg, 0.1, 0.9),
+                            else => active_cfg.main_ratio = math.clamp(arg, 0.1, 0.9),
                         }
                     },
                     .@"width-ratio" => {
@@ -244,44 +261,47 @@ const Output = struct {
                         };
                         switch (raw_arg[0]) {
                             '+', '-' => {
-                                output.cfg.width_ratio = math.clamp(output.cfg.width_ratio + arg, 0.1, 1.0);
+                                active_cfg.width_ratio = math.clamp(active_cfg.width_ratio + arg, 0.1, 1.0);
                             },
-                            else => output.cfg.width_ratio = math.clamp(arg, 0.1, 1.0),
+                            else => active_cfg.width_ratio = math.clamp(arg, 0.1, 1.0),
                         }
                     },
                 }
             },
-            .user_command_tags => {},
+            .user_command_tags => |ev| {
+                output.user_command_tags = ev.tags;
+            },
 
             .layout_demand => |ev| {
                 assert(ev.view_count > 0);
 
-                const main_count = @min(output.cfg.main_count, @as(u31, @truncate(ev.view_count)));
+                const active_cfg = output.get_cfg(ev.tags);
+                const main_count = @min(active_cfg.main_count, @as(u31, @truncate(ev.view_count)));
                 const sec_count = @as(u31, @truncate(ev.view_count)) -| main_count;
 
-                const only_one_view = ev.view_count == 1 or output.cfg.main_location == .monocle;
+                const only_one_view = ev.view_count == 1 or active_cfg.main_location == .monocle;
 
                 // Don't add gaps if there is only one view.
                 if (only_one_view and cfg.smart_gaps) {
                     cfg.outer_gaps = 0;
                     cfg.inner_gaps = 0;
                 } else {
-                    cfg.outer_gaps = output.cfg.outer_gaps;
-                    cfg.inner_gaps = output.cfg.inner_gaps;
+                    cfg.outer_gaps = active_cfg.outer_gaps;
+                    cfg.inner_gaps = active_cfg.inner_gaps;
                 }
 
-                const usable_w = switch (output.cfg.main_location) {
+                const usable_w = switch (active_cfg.main_location) {
                     .left, .right, .monocle => @as(
                         u31,
-                        @intFromFloat(@as(f64, @floatFromInt(ev.usable_width)) * output.cfg.width_ratio),
+                        @intFromFloat(@as(f64, @floatFromInt(ev.usable_width)) * active_cfg.width_ratio),
                     ) -| (2 *| cfg.outer_gaps),
                     .top, .bottom => @as(u31, @truncate(ev.usable_height)) -| (2 *| cfg.outer_gaps),
                 };
-                const usable_h = switch (output.cfg.main_location) {
+                const usable_h = switch (active_cfg.main_location) {
                     .left, .right, .monocle => @as(u31, @truncate(ev.usable_height)) -| (2 *| cfg.outer_gaps),
                     .top, .bottom => @as(
                         u31,
-                        @intFromFloat(@as(f64, @floatFromInt(ev.usable_width)) * output.cfg.width_ratio),
+                        @intFromFloat(@as(f64, @floatFromInt(ev.usable_width)) * active_cfg.width_ratio),
                     ) -| (2 *| cfg.outer_gaps),
                 };
 
@@ -295,7 +315,7 @@ const Output = struct {
                 var sec_h: u31 = undefined;
                 var sec_h_rem: u31 = undefined;
 
-                if (output.cfg.main_location == .monocle) {
+                if (active_cfg.main_location == .monocle) {
                     main_w = usable_w;
                     main_h = usable_h;
 
@@ -303,7 +323,7 @@ const Output = struct {
                     sec_h = usable_h;
                 } else {
                     if (sec_count > 0) {
-                        main_w = @as(u31, @intFromFloat(output.cfg.main_ratio * @as(f64, @floatFromInt(usable_w))));
+                        main_w = @as(u31, @intFromFloat(active_cfg.main_ratio * @as(f64, @floatFromInt(usable_w))));
                         main_h = usable_h / main_count;
                         main_h_rem = usable_h % main_count;
 
@@ -324,7 +344,7 @@ const Output = struct {
                     var width: u31 = undefined;
                     var height: u31 = undefined;
 
-                    if (output.cfg.main_location == .monocle) {
+                    if (active_cfg.main_location == .monocle) {
                         x = 0;
                         y = 0;
                         width = main_w;
@@ -346,7 +366,7 @@ const Output = struct {
                         }
                     }
 
-                    switch (output.cfg.main_location) {
+                    switch (active_cfg.main_location) {
                         .left => layout.pushViewDimensions(
                             x +| cfg.outer_gaps,
                             y +| cfg.outer_gaps,
@@ -385,7 +405,7 @@ const Output = struct {
                     }
                 }
 
-                switch (output.cfg.main_location) {
+                switch (active_cfg.main_location) {
                     .left => layout.commit("left", ev.serial),
                     .right => layout.commit("right", ev.serial),
                     .top => layout.commit("top", ev.serial),
@@ -408,6 +428,7 @@ pub fn main() !void {
         .{ .name = "main-count", .kind = .arg },
         .{ .name = "main-ratio", .kind = .arg },
         .{ .name = "width-ratio", .kind = .arg },
+        .{ .name = "per-tag", .kind = .boolean },
     }).parse(os.argv[1..]) catch {
         try std.io.getStdErr().writeAll(usage);
         os.exit(1);
@@ -457,6 +478,7 @@ pub fn main() !void {
             fatal_usage("Invalid value '{s}' provided to -width-ratio", .{raw});
         }
     }
+    if (res.flags.@"per-tag") cfg.per_tag = true;
 
     const display = wl.Display.connect(null) catch {
         fatal("unable to connect to wayland compositor", .{});
@@ -516,8 +538,8 @@ fn registry_event(context: *Context, registry: *wl.Registry, event: wl.Registry.
                 node.data = .{
                     .wl_output = wl_output,
                     .name = ev.name,
-                    .cfg = cfg,
                 };
+                try node.data.cfgs.put(gpa, 0, cfg);
 
                 if (ctx.initialized) try node.data.get_layout();
                 context.outputs.prepend(node);
@@ -529,6 +551,7 @@ fn registry_event(context: *Context, registry: *wl.Registry, event: wl.Registry.
                 if (node.data.name == ev.name) {
                     node.data.wl_output.release();
                     node.data.layout.destroy();
+                    node.data.cfgs.deinit(gpa);
                     context.outputs.remove(node);
                     gpa.destroy(node);
                     break;
