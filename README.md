@@ -10,9 +10,8 @@ Compared to _rivertile_, _rivercarro_ adds:
 -   Modify gaps size at runtime.
 -   Smart gaps, if there is only one view, gaps will be disable.
 -   Limit the width of the usable area of the screen.
-
-If you want a layout generator with more features and configuration, have
-a look at some others great community contributions like [stacktile] or [kile].
+-   Per tag configurations.
+-   Cycle through layout.
 
 ## Building
 
@@ -51,8 +50,10 @@ riverctl map normal $mod Down  send-layout-cmd rivercarro "main-location bottom"
 riverctl map normal $mod Left  send-layout-cmd rivercarro "main-location left"
 # And for monocle
 riverctl map normal $mod M     send-layout-cmd rivercarro "main-location monocle"
+# Cycle through layout
+riverctl map normal $mod W     send-layout-cmd rivercarro "main-location-cycle left,monocle"
 
-# Add others rivercarrro's commands the same way with the keybinds you'd like.
+# Add others rivercarro's commands the same way with the keybinds you'd like.
 # e.g.
 # riverctl map normal $mod <keys> send-layout-cmd rivercarro "inner-gaps -1"
 # riverctl map normal $mod <keys> send-layout-cmd rivercarro "inner-gaps +1"
@@ -61,10 +62,10 @@ riverctl map normal $mod M     send-layout-cmd rivercarro "main-location monocle
 # riverctl map normal $mod <keys> send-layout-cmd rivercarro "width-ratio -0.1"
 # riverctl map normal $mod <keys> send-layout-cmd rivercarro "width-ratio +0.1"
 
-# Set and exec into the default layout generator, rivercarro.
+# Set the default layout generator to be rivercarro and start it.
 # River will send the process group of the init executable SIGTERM on exit.
 riverctl default-layout rivercarro
-exec rivercarro
+rivercarro -outer-gaps 0 -per-tag &
 ```
 
 ### Command line options
@@ -76,8 +77,10 @@ Usage: rivercarro [options...]
   -h              Print this help message and exit.
   -version        Print the version number and exit.
   -no-smart-gaps  Disable smart gaps
+  -per-tag        Remember configuration per tag
 
-  The following commands may also be sent to rivercarro at runtime:
+  The following commands may also be sent to rivercarro at runtime
+  via riverctl(1):
 
   -inner-gaps     Set the gaps around views in pixels. (Default 6)
   -outer-gaps     Set the gaps around the edge of the layout area in
@@ -115,11 +118,9 @@ Files in `common/` and `protocol/` directories are released under various
 licenses by various parties. You should refer to the copyright block of each
 files for the licensing information.
 
-[river]: https://github.com/ifreund/river
-[stacktile]: https://sr.ht/~leon_plickat/stacktile/
-[kile]: https://gitlab.com/snakedye/kile
+[river]: https://codeberg.org/river/river
 [zig]: https://ziglang.org/download/
 [contributing.md]: CONTRIBUTING.md
-[isaac freund]: https://github.com/ifreund
+[isaac freund]: https://codeberg.org/ifreund
 [leon henrik plickat]: https://sr.ht/~leon_plickat/
 [gnu general public license v3.0 or later]: COPYING

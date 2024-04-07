@@ -42,7 +42,8 @@ const usage =
     \\  -no-smart-gaps  Disable smart gaps
     \\  -per-tag        Remember configuration per tag
     \\
-    \\  The following commands may also be sent to rivercarro at runtime:
+    \\  The following commands may also be sent to rivercarro at runtime
+    \\  via riverctl(1):
     \\
     \\  -inner-gaps     Set the gaps around views in pixels. (Default 6)
     \\  -outer-gaps     Set the gaps around the edge of the layout area in
