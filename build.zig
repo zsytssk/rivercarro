@@ -18,6 +18,8 @@ pub fn build(b: *Builder) !void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
 
+    const pie = b.option(bool, "pie", "Build a Position Independent Executable") orelse false;
+
     const full_version = blk: {
         if (mem.endsWith(u8, version, "-dev")) {
             var ret: u8 = undefined;
@@ -73,6 +75,8 @@ pub fn build(b: *Builder) !void {
     exe.linkSystemLibrary("wayland-client");
 
     scanner.addCSource(exe);
+
+    exe.pie = pie;
 
     b.installArtifact(exe);
     b.installFile("doc/rivercarro.1", "share/man/man1/rivercarro.1");
