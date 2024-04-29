@@ -68,35 +68,6 @@ riverctl default-layout rivercarro
 rivercarro -outer-gaps 0 -per-tag &
 ```
 
-### Command line options
-
-```
-$ rivercarro -h
-Usage: rivercarro [options...]
-
-  -h              Print this help message and exit.
-  -version        Print the version number and exit.
-  -no-smart-gaps  Disable smart gaps
-  -per-tag        Remember configuration per tag
-
-  The following commands may also be sent to rivercarro at runtime
-  via riverctl(1):
-
-  -inner-gaps     Set the gaps around views in pixels. (Default 6)
-  -outer-gaps     Set the gaps around the edge of the layout area in
-                  pixels. (Default 6)
-  -main-location  Set the initial location of the main area in the
-                  layout. (Default left)
-  -main-count     Set the initial number of views in the main area of the
-                  layout. (Default 1)
-  -main-ratio     Set the initial ratio of main area to total layout
-                  area. (Default: 0.6)
-  -width-ratio    Set the ratio of the usable area width of the screen.
-                  (Default: 1.0)
-
-  See rivercarro(1) man page for more documentation.
-```
-
 ## Contributing
 
 See [CONTRIBUTING.md]

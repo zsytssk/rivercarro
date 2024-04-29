@@ -37,10 +37,11 @@ const gpa = std.heap.c_allocator;
 const usage =
     \\Usage: rivercarro [options...]
     \\
-    \\  -h              Print this help message and exit.
-    \\  -version        Print the version number and exit.
-    \\  -no-smart-gaps  Disable smart gaps
-    \\  -per-tag        Remember configuration per tag
+    \\  -h                    Print this help message and exit.
+    \\  -version              Print the version number and exit.
+    \\  -no-smart-gaps        Disable smart gaps
+    \\  -per-tag              Remember configuration per tag
+    \\  -width-ratio-centered Center views when used with width-ratio
     \\
     \\  The following commands may also be sent to rivercarro at runtime
     \\  via riverctl(1):
@@ -88,6 +89,7 @@ const Config = struct {
     main_count: u31 = 1,
     main_ratio: f64 = 0.6,
     width_ratio: f64 = 1.0,
+    width_ratio_centered: bool = false,
     per_tag: bool = false,
 };
 
@@ -367,6 +369,10 @@ const Output = struct {
                         }
                     }
 
+                    if (active_cfg.width_ratio != 1.0 and active_cfg.width_ratio_centered) {
+                        x += @intCast((ev.usable_width - usable_w) / 2);
+                    }
+
                     switch (active_cfg.main_location) {
                         .left => layout.pushViewDimensions(
                             x +| cfg.outer_gaps,
@@ -429,6 +435,7 @@ pub fn main() !void {
         .{ .name = "main-count", .kind = .arg },
         .{ .name = "main-ratio", .kind = .arg },
         .{ .name = "width-ratio", .kind = .arg },
+        .{ .name = "width-ratio-centered", .kind = .boolean },
         .{ .name = "per-tag", .kind = .boolean },
     }).parse(os.argv[1..]) catch {
         try std.io.getStdErr().writeAll(usage);
@@ -479,6 +486,7 @@ pub fn main() !void {
             fatal_usage("Invalid value '{s}' provided to -width-ratio", .{raw});
         }
     }
+    if (res.flags.@"width-ratio-centered") cfg.width_ratio_centered = true;
     if (res.flags.@"per-tag") cfg.per_tag = true;
 
     const display = wl.Display.connect(null) catch {
