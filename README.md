@@ -15,12 +15,8 @@ Compared to _rivertile_, _rivercarro_ adds:
 
 ## Building
 
-Same requirements as **[river]**, use [zig] 0.11, if **[river]** and
+Same requirements as **[river]**, use [zig] 0.12, if **[river]** and
 _rivertile_ works on your machine you shouldn't have any problems.
-
-Init submodules:
-
-    git submodule update --init
 
 Build, `e.g.`
 

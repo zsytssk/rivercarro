@@ -23,7 +23,7 @@ const fmt = std.fmt;
 const io = std.io;
 const mem = std.mem;
 const math = std.math;
-const os = std.os;
+const posix = std.posix;
 
 const flags = @import("flags");
 const wayland = @import("wayland");
@@ -437,19 +437,19 @@ pub fn main() !void {
         .{ .name = "width-ratio", .kind = .arg },
         .{ .name = "width-ratio-centered", .kind = .boolean },
         .{ .name = "per-tag", .kind = .boolean },
-    }).parse(os.argv[1..]) catch {
+    }).parse(std.os.argv[1..]) catch {
         try std.io.getStdErr().writeAll(usage);
-        os.exit(1);
+        posix.exit(1);
     };
     if (res.args.len != 0) fatal_usage("Unknown option '{s}'", .{res.args[0]});
 
     if (res.flags.h) {
         try io.getStdOut().writeAll(usage);
-        os.exit(0);
+        posix.exit(0);
     }
     if (res.flags.version) {
         try io.getStdOut().writeAll(build_options.version ++ "\n");
-        os.exit(0);
+        posix.exit(0);
     }
     if (res.flags.@"no-smart-gaps") {
         cfg.smart_gaps = false;
@@ -572,11 +572,11 @@ fn registry_event(context: *Context, registry: *wl.Registry, event: wl.Registry.
 
 fn fatal(comptime format: []const u8, args: anytype) noreturn {
     log.err(format, args);
-    os.exit(1);
+    posix.exit(1);
 }
 
 fn fatal_usage(comptime format: []const u8, args: anytype) noreturn {
     log.err(format, args);
     std.io.getStdErr().writeAll(usage) catch {};
-    os.exit(1);
+    posix.exit(1);
 }
