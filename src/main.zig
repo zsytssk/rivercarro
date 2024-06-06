@@ -246,6 +246,7 @@ const Output = struct {
                         }
                     },
                     .@"main-ratio" => {
+                        log.err("test:>cur.main-ratio:{d}", .{active_cfg.main_ratio});
                         const arg = fmt.parseFloat(f64, raw_arg) catch |err| {
                             log.err("failed to parse argument: {}", .{err});
                             return;
@@ -346,6 +347,7 @@ const Output = struct {
                     var y: i32 = undefined;
                     var width: u31 = undefined;
                     var height: u31 = undefined;
+                    std.log.info("test:>layout_demand:>{d}:{d}", .{ i, ev.serial });
 
                     if (active_cfg.main_location == .monocle) {
                         x = 0;
